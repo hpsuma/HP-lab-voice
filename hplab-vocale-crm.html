@@ -1628,6 +1628,18 @@ function editNote() {
     document.getElementById('recTimer').textContent = '0:00';
     document.getElementById('recTranscript').textContent = '';
 
+    // Se la nota è in modalità libera, vai in registrazione normale (senza guida)
+    if (!n.mode || n.mode === 'free') {
+      const toggle = document.getElementById('guideToggle');
+      if (toggle) toggle.checked = false;
+      const label = document.getElementById('guideBarLabel');
+      if (label) { label.textContent = 'Modalità guidata'; label.classList.remove('active'); }
+      showGuidePanel(false);
+      setMode('free');
+      showScreen('screen-record');
+      return;
+    }
+
     // Trova aree con campi vuoti
     const areaDefs = [
       { mode:'contact',  name:'Contatto',  icon:'📞', fields:['contact','phone','email','intent'] },
