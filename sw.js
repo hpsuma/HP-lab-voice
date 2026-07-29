@@ -1,4 +1,4 @@
-const CACHE = 'hplab-notes-v4';
+const CACHE = 'hplab-notes-v5';
 
 self.addEventListener('install', function(e) {
   self.skipWaiting();
@@ -6,7 +6,9 @@ self.addEventListener('install', function(e) {
     caches.open(CACHE).then(function(cache) {
       return cache.addAll([
         '/HP-lab-voice/hplab-vocale-crm.html',
-        '/HP-lab-voice/manifest.json'
+        '/HP-lab-voice/manifest.json',
+        '/HP-lab-voice/icon-192.png',
+        '/HP-lab-voice/icon-512.png'
       ]);
     })
   );
