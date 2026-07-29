@@ -335,7 +335,7 @@ body {
         </defs>
         <g transform="translate(680, 460) scale(1.15)">
           <g transform="translate(15, 5)">
-            <path d="M 52,24 L 15,46 L 15,114 L 70,146 L 125,114 L 125,46 L 88,24 L 88,36 L 113,51 L 113,109 L 70,134 L 27,109 L 27,51 L 52,36 Z" class="green-fill-path" />
+            <path d="M 52,24 L 15,46 L 15,114 L 70,146 L 125,114 L 125,46 Z" class="green-fill-path" />
             <rect x="62" y="14" width="16" height="42" rx="3" class="rect-power-fill" />
           </g>
           <text x="320" y="98" class="text-main-hp">HP Lab</text>
@@ -1512,8 +1512,9 @@ function renderDashboard() {
     `;
   }).join('');
   list.querySelectorAll('.note-card').forEach(card => {
-    // Click: se in modalità delete, esci; altrimenti dettaglio
+    let _suppressClick = false;
     card.addEventListener('click', function(e) {
+      if (_suppressClick) { _suppressClick = false; return; }
       if (e.target.closest('.card-copy-btn')) return;
       if (this.classList.contains('show-delete')) {
         this.classList.remove('show-delete');
@@ -1521,32 +1522,27 @@ function renderDashboard() {
       }
       showDetail(this.dataset.id);
     });
-    // Long press to toggle delete button
     let longPressTimer = null;
     card.addEventListener('touchstart', function() {
       longPressTimer = setTimeout(function() {
         longPressTimer = null;
         card.classList.toggle('show-delete');
+        _suppressClick = true;
       }, 500);
     });
     card.addEventListener('touchmove', function() { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } });
     card.addEventListener('touchend', function() { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } });
-    // Right click to toggle
     card.addEventListener('contextmenu', function(e) {
       e.preventDefault();
       card.classList.toggle('show-delete');
     });
-    // Delete button
     const delBtn = card.querySelector('.card-delete-btn');
     if (delBtn) {
       delBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        const id = this.dataset.id;
-        if (confirm('Eliminare questa nota definitivamente?')) {
-          let notes = getNotes(); notes = notes.filter(n => n.id !== id); saveNotes(notes);
-          showToast('Nota eliminata');
-          renderDashboard();
-        }
+        let notes = getNotes(); notes = notes.filter(n => n.id !== this.dataset.id); saveNotes(notes);
+        showToast('Nota eliminata');
+        renderDashboard();
       });
     }
   });
