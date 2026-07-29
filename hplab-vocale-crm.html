@@ -1808,6 +1808,11 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') { const a = document.querySelector('.screen.active'); if (a && a.id !== 'screen-pin' && a.id !== 'screen-main') showScreen('screen-main'); }
 });
 
+// ======== SERVICE WORKER (PWA fullscreen) ========
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function() {});
+}
+
 // ======== INIT ========
 setupPin(); setupModeChips(); setMode('free');
 if (!getSpeechRec()) showToast('Usa Chrome desktop o Android per il riconoscimento vocale.');

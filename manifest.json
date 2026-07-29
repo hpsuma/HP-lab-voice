@@ -3,6 +3,7 @@
   "short_name": "HP Lab Vocali",
   "description": "App vocale per note CRM immobiliari",
   "start_url": "/HP-lab-voice/hplab-vocale-crm.html",
+  "scope": "/HP-lab-voice/",
   "display": "standalone",
   "background_color": "#111110",
   "theme_color": "#111110",
