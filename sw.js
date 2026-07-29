@@ -1,4 +1,4 @@
-const CACHE = 'hplab-notes-v2';
+const CACHE = 'hplab-notes-v3';
 
 self.addEventListener('install', function(e) {
   self.skipWaiting();
