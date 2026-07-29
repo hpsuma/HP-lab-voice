@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>HP Lab · Note Vocali CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #111110;
+  --bg2: #171716;
+  --bg3: #1d1d1c;
+  --fg: #f0f4f0;
+  --fg2: #c8d4c8;
+  --fg3: #9aaa9a;
+  --fg4: #708070;
+  --green: #22C55E;
+  --green-light: #4ADE80;
+  --green-dark: #15803D;
+  --gold: #E8C84A;
+  --font: 'Inter', -apple-system, sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font);
+  font-size: 16px; -webkit-font-smoothing: antialiased;
+  display: flex; justify-content: center; align-items: center;
+}
+#app {
+  width: 100%; max-width: 430px; height: 100dvh; max-height: 932px;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+  background: var(--bg);
+  border-radius: 0;
+}
+@media (min-width: 500px) { #app { border-radius: 24px; border: 1px solid rgba(255,255,255,0.04); height: 90dvh; } }
+
+.screen { display: none; flex-direction: column; height: 100%; padding: 20px 16px; }
+.screen.active { display: flex; }
+
+/* ===== PIN ===== */
+#screen-pin { justify-content: center; align-items: center; gap: 12px; }
+.pin-logo { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.pin-logo-svg { width: 100%; max-width: 390px; height: auto; display: block; }
+.pin-title { font-size: 1rem; font-weight: 600; color: var(--fg2); }
+.pin-dots { display: flex; gap: 16px; margin: 8px 0; }
+.pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--fg4); transition: all 0.2s; }
+.pin-dot.filled { background: var(--green); border-color: var(--green); box-shadow: 0 0 15px rgba(34,197,94,0.2); }
+.pin-error { font-size: 0.75rem; color: #ef4444; height: 20px; }
+.pin-kb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 280px; }
+.pin-key { aspect-ratio: 1; border-radius: 50%; background: var(--bg2); border: 1px solid rgba(255,255,255,0.03); color: var(--fg); font-size: 1.4rem; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-tap-highlight-color: transparent; }
+.pin-key:active { background: var(--bg3); transform: scale(0.92); }
+.pin-key.empty { background: transparent; border-color: transparent; cursor: default; }
+.pin-key.del { font-size: 1rem; }
+
+/* ===== HEADER ===== */
+.app-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0 16px; flex-shrink: 0; }
+.app-header h1 { font-size: 1rem; font-weight: 700; color: var(--green); }
+.app-header .badge { font-size: 0.6rem; color: var(--fg4); background: var(--bg2); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.02); }
+.header-actions { display: flex; gap: 8px; }
+.header-btn { background: none; border: none; color: var(--fg3); font-size: 1.2rem; cursor: pointer; padding: 4px; -webkit-tap-highlight-color: transparent; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+.header-btn:active { background: var(--bg2); }
+
+/* ===== MODE CHIPS ===== */
+.mode-bar { display: flex; gap: 6px; margin-bottom: 12px; flex-shrink: 0; flex-wrap: wrap; }
+.mode-chip { font-size: 0.6rem; padding: 5px 12px; border-radius: 20px; background: var(--bg2); border: 1px solid rgba(255,255,255,0.03); color: var(--fg4); cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent; font-weight: 500; letter-spacing: 0.3px; user-select: none; }
+.mode-chip:active { transform: scale(0.95); }
+.mode-chip.active { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); color: var(--green); }
+
+/* ===== DASHBOARD ===== */
+#screen-main { padding-bottom: 0; }
+.dashboard-stats { display: flex; gap: 8px; margin-bottom: 16px; flex-shrink: 0; }
+.stat-card { flex: 1; background: var(--bg2); border-radius: var(--radius-sm); padding: 12px; border: 1px solid rgba(255,255,255,0.02); }
+.stat-num { font-size: 1.5rem; font-weight: 700; color: var(--green); }
+.stat-num.gold { color: var(--gold); }
+.stat-label { font-size: 0.65rem; color: var(--fg4); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.dashboard-list { flex: 1; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; scrollbar-color: var(--bg3) transparent; -webkit-overflow-scrolling: touch; }
+.dashboard-list::-webkit-scrollbar { width: 3px; }
+.dashboard-list::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 12px; color: var(--fg4); }
+.empty-state .icon { font-size: 2.5rem; opacity: 0.5; }
+.empty-state p { font-size: 0.85rem; text-align: center; line-height: 1.6; max-width: 260px; }
+
+/* ===== NOTE CARD ===== */
+.note-card { background: rgba(34,197,94,0.015); border: 1px solid rgba(34,197,94,0.06); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; transition: all 0.2s; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.note-card:active { transform: scale(0.98); }
+.note-card .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.note-card .card-contact { font-size: 0.95rem; font-weight: 600; color: var(--fg); }
+.note-card .card-contact.empty-contact { color: var(--fg3); font-weight: 400; font-style: italic; }
+.note-card .card-priority { font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 2px 8px; border-radius: 20px; }
+.priority-alta { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.1); }
+.priority-media { background: rgba(232,200,74,0.1); color: var(--gold); border: 1px solid rgba(232,200,74,0.1); }
+.priority-bassa { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.1); }
+.note-card .card-details { font-size: 0.78rem; color: var(--fg3); line-height: 1.5; }
+.note-card .card-intent { font-size: 0.6rem; display: inline-block; color: var(--gold); background: rgba(232,200,74,0.08); padding: 2px 8px; border-radius: 6px; margin-top: 4px; }
+.card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.03); }
+.card-date { font-size: 0.6rem; color: var(--fg4); }
+.card-copy-btn { font-size: 0.65rem; background: none; border: 1px solid rgba(34,197,94,0.1); color: var(--green); padding: 4px 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+.card-copy-btn:active { background: rgba(34,197,94,0.1); }
+
+/* ===== RECORD BUTTON ===== */
+.record-fab {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--green); border: none;
+  box-shadow: 0 4px 30px rgba(34,197,94,0.25);
+  cursor: pointer; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s ease; -webkit-tap-highlight-color: transparent;
+}
+.record-fab:active { transform: translateX(-50%) scale(0.92); }
+.record-fab svg { width: 26px; height: 26px; color: var(--bg); }
+.record-fab.recording { background: #ef4444; box-shadow: 0 4px 30px rgba(239,68,68,0.3); animation: pulse-record 1.5s ease-in-out infinite; }
+@keyframes pulse-record { 0%,100% { box-shadow: 0 4px 30px rgba(239,68,68,0.3); } 50% { box-shadow: 0 4px 50px rgba(239,68,68,0.5); } }
+
+/* ===== RECORD SCREEN ===== */
+#screen-record { padding-bottom: 0; }
+.record-status { text-align: center; padding: 40px 0 20px; flex-shrink: 0; }
+.record-indicator { display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--fg3); }
+.record-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: blink 1s ease-in-out infinite; }
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+.record-timer { font-size: 2.5rem; font-weight: 200; color: var(--fg); margin-top: 8px; font-variant-numeric: tabular-nums; letter-spacing: -1px; }
+.record-wave { display: flex; justify-content: center; gap: 3px; height: 40px; align-items: center; margin-top: 12px; }
+.record-wave span { width: 3px; background: var(--green); border-radius: 3px; animation: wave 0.8s ease-in-out infinite; }
+.record-wave span:nth-child(1) { height: 20%; animation-delay: 0s; }
+.record-wave span:nth-child(2) { height: 40%; animation-delay: 0.1s; }
+.record-wave span:nth-child(3) { height: 60%; animation-delay: 0.2s; }
+.record-wave span:nth-child(4) { height: 80%; animation-delay: 0.3s; }
+.record-wave span:nth-child(5) { height: 100%; animation-delay: 0.4s; }
+.record-wave span:nth-child(6) { height: 70%; animation-delay: 0.3s; }
+.record-wave span:nth-child(7) { height: 50%; animation-delay: 0.2s; }
+.record-wave span:nth-child(8) { height: 30%; animation-delay: 0.1s; }
+@keyframes wave { 0%,100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
+
+.record-transcript {
+  flex: 1; overflow-y: auto; background: var(--bg2); border-radius: var(--radius);
+  padding: 16px; margin: 16px 0; border: 1px solid rgba(255,255,255,0.02);
+  font-size: 0.85rem; line-height: 1.7; color: var(--fg2); white-space: pre-wrap;
+  scrollbar-width: thin; scrollbar-color: var(--bg3) transparent;
+}
+.record-transcript:empty::before { content: 'Parla... la trascrizione apparirà qui in tempo reale.'; color: var(--fg4); font-style: italic; }
+.record-transcript::-webkit-scrollbar { width: 3px; }
+.record-transcript::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+
+.record-actions { display: flex; gap: 10px; padding: 16px 0 24px; flex-shrink: 0; }
+.record-actions button {
+  flex: 1; padding: 14px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+}
+.btn-stop { background: #ef4444; border: none; color: white; }
+.btn-stop:active { transform: scale(0.97); }
+.btn-discard { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--fg3); }
+.btn-discard:active { background: var(--bg2); transform: scale(0.97); }
+
+/* ===== GUIDA VOCALE ===== */
+.guide-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-shrink: 0; padding: 8px 12px; background: var(--bg2); border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.03); }
+.guide-toggle { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+.guide-toggle input { opacity: 0; width: 0; height: 0; }
+.guide-slider { position: absolute; cursor: pointer; inset: 0; background: var(--bg3); border-radius: 22px; transition: 0.3s; }
+.guide-slider::before { content: ''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: var(--fg4); border-radius: 50%; transition: 0.3s; }
+.guide-toggle input:checked + .guide-slider { background: var(--green-dark); }
+.guide-toggle input:checked + .guide-slider::before { transform: translateX(18px); background: var(--green); }
+.guide-bar-label { font-size: 0.72rem; color: var(--fg3); font-weight: 500; flex: 1; }
+.guide-bar-label.active { color: var(--green); }
+
+.guide-panel { flex: 1; display: none; flex-direction: column; margin: 12px 0; min-height: 0; }
+.guide-panel.active { display: flex; }
+.guide-question { background: var(--bg2); border-radius: var(--radius); padding: 20px 16px; border: 1px solid rgba(34,197,94,0.1); text-align: center; margin-bottom: 12px; }
+.guide-question-text { font-size: 1.05rem; font-weight: 600; color: var(--fg); line-height: 1.5; }
+.guide-question-progress { font-size: 0.6rem; color: var(--fg4); margin-top: 8px; letter-spacing: 1px; }
+.guide-status { font-size: 0.75rem; color: var(--fg3); padding: 8px 0; text-align: center; min-height: 32px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.guide-status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 1s infinite; }
+.guide-status.listening { color: var(--green); }
+.guide-status.thinking { color: var(--gold); }
+.guide-status.done { color: var(--fg4); }
+
+.guide-fields { background: var(--bg2); border-radius: var(--radius); padding: 12px 14px; border: 1px solid rgba(255,255,255,0.02); }
+.guide-field { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.8rem; }
+.guide-field:last-child { border-bottom: none; }
+.guide-field-icon { width: 20px; text-align: center; flex-shrink: 0; font-size: 0.75rem; }
+.guide-field-name { color: var(--fg4); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px; min-width: 60px; }
+.guide-field-value { color: var(--fg2); flex: 1; text-align: right; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.guide-field.current { border-bottom-color: rgba(34,197,94,0.15); }
+.guide-field.current .guide-field-name { color: var(--green); font-weight: 600; }
+.guide-field.current .guide-field-icon { color: var(--green); }
+.guide-field.done .guide-field-value { color: var(--green); }
+.guide-field.missing .guide-field-value { color: #ef4444; font-weight: 500; }
+.guide-field.missing .guide-field-icon { color: #ef4444; }
+
+.guide-actions { display: flex; gap: 10px; margin-top: 12px; flex-shrink: 0; }
+.guide-actions button { flex: 1; padding: 12px; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+.guide-btn-skip { background: transparent; border: 1px solid rgba(239,68,68,0.15); color: #ef4444; }
+.guide-btn-skip:active { background: rgba(239,68,68,0.06); transform: scale(0.97); }
+.guide-btn-end { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--fg3); }
+.guide-btn-end:active { background: var(--bg3); transform: scale(0.97); }
+
+.preview-value.missing input, .preview-value.missing input:focus { border-color: #ef4444 !important; background: rgba(239,68,68,0.06) !important; color: #ef4444 !important; }
+
+/* ===== PREVIEW (mode-aware) ===== */
+.structured-preview { flex: 1; overflow-y: auto; padding-bottom: 8px; scrollbar-width: thin; scrollbar-color: var(--bg3) transparent; }
+.structured-preview::-webkit-scrollbar { width: 3px; }
+.structured-preview::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+.preview-group { margin-bottom: 12px; background: var(--bg2); border-radius: var(--radius); padding: 12px 14px; border: 1px solid rgba(255,255,255,0.02); }
+.preview-group.hidden { display: none; }
+.preview-group-title { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.preview-group-title .mode-hint { float: right; color: var(--fg4); font-weight: 400; letter-spacing: 0; }
+.preview-field { margin-bottom: 10px; }
+.preview-field:last-child { margin-bottom: 0; }
+.preview-field.hidden { display: none; }
+.preview-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1.2px; color: var(--fg4); margin-bottom: 3px; }
+.preview-value { font-size: 0.85rem; color: var(--fg); background: var(--bg3); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.02); }
+.preview-value textarea, .preview-value input {
+  background: transparent; border: none; color: var(--fg); font-family: var(--font); font-size: 0.85rem; width: 100%; outline: none; resize: none;
+  padding: 0; margin: 0;
+}
+.preview-value input::placeholder, .preview-value textarea::placeholder { color: var(--fg4); }
+
+.preview-actions { display: flex; gap: 8px; margin-top: 8px; flex-shrink: 0; flex-wrap: wrap; }
+.preview-actions button { padding: 12px 10px; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+.btn-crm { background: var(--green); border: none; color: var(--bg); flex: 2; }
+.btn-crm:active { transform: scale(0.97); }
+.btn-save { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--fg2); flex: 1; }
+.btn-save:active { background: var(--bg3); transform: scale(0.97); }
+.btn-back-sm { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--fg3); flex: 1; }
+.btn-back-sm:active { background: var(--bg3); transform: scale(0.97); }
+
+/* ===== DETAIL SCREEN ===== */
+.detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.detail-header .back-icon { font-size: 1.2rem; background: none; border: none; color: var(--fg3); cursor: pointer; padding: 4px; }
+.detail-contact { font-size: 1.2rem; font-weight: 700; }
+.detail-meta { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.detail-group { margin-bottom: 14px; background: var(--bg2); border-radius: var(--radius); padding: 12px 14px; border: 1px solid rgba(255,255,255,0.02); }
+.detail-group-title { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; gap: 6px; }
+.detail-row-label { font-size: 0.6rem; color: var(--fg4); min-width: 45px; }
+.detail-row-value { font-size: 0.82rem; color: var(--fg); flex: 1; }
+.detail-row-value.small { font-size: 0.72rem; color: var(--fg3); }
+.detail-copy-icon { background: none; border: 1px solid rgba(34,197,94,0.1); color: var(--green); font-size: 0.55rem; padding: 2px 8px; border-radius: 6px; cursor: pointer; flex-shrink: 0; }
+.detail-copy-icon:active { background: rgba(34,197,94,0.08); }
+.detail-big-copy { margin-top: 16px; width: 100%; padding: 14px; border-radius: var(--radius-sm); background: var(--green); border: none; color: var(--bg); font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+.detail-big-copy:active { transform: scale(0.97); }
+.detail-delete { margin-top: 12px; padding: 12px; width: 100%; border-radius: var(--radius-sm); background: transparent; border: 1px solid rgba(239,68,68,0.1); color: #ef4444; font-size: 0.8rem; cursor: pointer; }
+.detail-delete:active { background: rgba(239,68,68,0.06); }
+.detail-edit-btn { margin-top: 12px; width: 100%; padding: 14px; border-radius: var(--radius-sm); background: var(--green); border: none; color: var(--bg); font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+.detail-edit-btn:active { transform: scale(0.97); }
+
+.toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: var(--bg2); color: var(--fg2); padding: 10px 20px; border-radius: 12px;
+  font-size: 0.78rem; border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ===== SETTINGS ===== */
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 50; display: none; justify-content: center; align-items: center; padding: 20px; }
+.overlay.show { display: flex; }
+.overlay-content { background: var(--bg2); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 360px; border: 1px solid rgba(255,255,255,0.03); }
+.overlay-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+.overlay-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+.overlay-row label { font-size: 0.8rem; color: var(--fg2); }
+.overlay-row .value { font-size: 0.8rem; color: var(--fg4); }
+.overlay-close { margin-top: 16px; width: 100%; padding: 12px; border-radius: var(--radius-sm); background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--fg3); font-size: 0.85rem; cursor: pointer; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ========== PIN ========== -->
+  <div class="screen active" id="screen-pin">
+    <div class="pin-logo">
+      <svg class="pin-logo-svg" viewBox="664 432 614 252" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="metallic-green" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#E2FF9E" />
+            <stop offset="25%" stop-color="#3BEB74" />
+            <stop offset="60%" stop-color="#00A843" />
+            <stop offset="85%" stop-color="#006124" />
+            <stop offset="100%" stop-color="#003B14" />
+          </linearGradient>
+          <style>
+            .green-stroke-path { fill:none; stroke:url(#metallic-green); stroke-width:3.5; stroke-linejoin:round; stroke-linecap:round; }
+            .rect-power-bar { fill:none; stroke:url(#metallic-green); stroke-width:3; stroke-linejoin:round; stroke-linecap:round; }
+            .text-main-hp { font-family:'Arial Black','Impact',sans-serif; font-weight:900; font-style:normal; font-size:74px; fill:none; stroke:url(#metallic-green); stroke-width:3.5px; stroke-linejoin:round; stroke-linecap:round; letter-spacing:-0.5px; text-anchor:middle; }
+            .text-subtitle-progress { font-family:'Arial',sans-serif; font-weight:bold; font-style:italic; font-size:23px; fill:url(#metallic-green); letter-spacing:0.5px; text-anchor:middle; }
+          </style>
+        </defs>
+        <g transform="translate(680, 460) scale(1.15)">
+          <g transform="translate(15, 5)">
+            <path d="M 52,24 L 15,46 L 15,114 L 70,146 L 125,114 L 125,46 L 88,24 L 88,36 L 113,51 L 113,109 L 70,134 L 27,109 L 27,51 L 52,36 Z" class="green-stroke-path" />
+            <rect x="62" y="14" width="16" height="42" rx="3" class="rect-power-bar" />
+          </g>
+          <text x="320" y="98" class="text-main-hp">HP Lab</text>
+          <text x="320" y="132" class="text-subtitle-progress">Innovation for Performance</text>
+        </g>
+      </svg>
+    </div>
+    <div class="pin-title">Inserisci il PIN</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" data-i="0"></div>
+      <div class="pin-dot" data-i="1"></div>
+      <div class="pin-dot" data-i="2"></div>
+      <div class="pin-dot" data-i="3"></div>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+    <div class="pin-kb" id="pinKb">
+      <button class="pin-key" data-v="1">1</button>
+      <button class="pin-key" data-v="2">2</button>
+      <button class="pin-key" data-v="3">3</button>
+      <button class="pin-key" data-v="4">4</button>
+      <button class="pin-key" data-v="5">5</button>
+      <button class="pin-key" data-v="6">6</button>
+      <button class="pin-key" data-v="7">7</button>
+      <button class="pin-key" data-v="8">8</button>
+      <button class="pin-key" data-v="9">9</button>
+      <button class="pin-key empty"></button>
+      <button class="pin-key" data-v="0">0</button>
+      <button class="pin-key del" id="pinDel">⌫</button>
+    </div>
+  </div>
+
+  <!-- ========== DASHBOARD ========== -->
+  <div class="screen" id="screen-main">
+    <div class="app-header">
+      <h1>HP Lab · Note</h1>
+      <span class="badge" id="noteCount">0 note</span>
+      <div class="header-actions"><button class="header-btn" id="btnSettings" title="Info">ⓘ</button></div>
+    </div>
+    <div class="mode-bar">
+      <div class="mode-chip" data-mode="free">🎙️ Libero</div>
+      <div class="mode-chip" data-mode="contact">📞 Contatto</div>
+      <div class="mode-chip" data-mode="property">🏠 Immobile</div>
+      <div class="mode-chip" data-mode="activity">📅 Attività</div>
+    </div>
+    <!-- Guida vocale toggle -->
+    <div class="guide-bar" id="guideBar">
+      <label class="guide-toggle">
+        <input type="checkbox" id="guideToggle">
+        <span class="guide-slider"></span>
+      </label>
+      <span class="guide-bar-label" id="guideBarLabel">Modalità guidata</span>
+    </div>
+    <div class="dashboard-stats">
+      <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Totale</div></div>
+      <div class="stat-card"><div class="stat-num gold" id="statHigh">0</div><div class="stat-label">Priorità alta</div></div>
+      <div class="stat-card"><div class="stat-num" id="statToday">0</div><div class="stat-label">Oggi</div></div>
+    </div>
+    <div class="dashboard-list" id="notesList">
+      <div class="empty-state"><div class="icon">🎤</div><p>Ancora nessuna nota.<br>Tocca il pulsante verde<br>per registrare la prima.</p></div>
+    </div>
+    <button class="record-fab" id="btnRecord" aria-label="Nuova nota vocale">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+  </div>
+
+  <!-- ========== RECORD ========== -->
+  <div class="screen" id="screen-record">
+    <div class="app-header">
+      <h1 id="recModeTitle">Nuova Nota · Libero</h1>
+      <span class="badge" id="recordingStatus">In ascolto...</span>
+      <div style="width:36px"></div>
+    </div>
+    <div class="mode-bar" id="recModeBar">
+      <div class="mode-chip active" data-mode="free">🎙️ Libero</div>
+      <div class="mode-chip" data-mode="contact">📞 Contatto</div>
+      <div class="mode-chip" data-mode="property">🏠 Immobile</div>
+      <div class="mode-chip" data-mode="activity">📅 Attività</div>
+    </div>
+    <div class="record-status" id="recordStatusArea">
+      <div class="record-indicator"><span class="record-dot"></span> Registrazione in corso</div>
+      <div class="record-timer" id="recTimer">0:00</div>
+      <div class="record-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+    <div class="record-transcript" id="recTranscript"></div>
+
+    <!-- Guida vocale panel (hidden by default) -->
+    <div class="guide-panel" id="guidePanel">
+      <div class="guide-question">
+        <div class="guide-question-text" id="guideQuestionText">Pronto per iniziare?</div>
+        <div class="guide-question-progress" id="guideProgress">—</div>
+      </div>
+      <div class="guide-status" id="guideStatus">
+        <span class="dot"></span> In ascolto...
+      </div>
+      <div class="guide-fields" id="guideFields"></div>
+      <div class="guide-actions">
+        <button class="guide-btn-skip" id="guideBtnSkip">✕ Non ricordo</button>
+        <button class="guide-btn-end" id="guideBtnEnd">Termina guida</button>
+      </div>
+    </div>
+
+    <div class="record-actions" id="recordActions">
+      <button class="btn-discard" id="btnCancelRec">Annulla</button>
+      <button class="btn-stop" id="btnStopRec">Ferma e struttura</button>
+    </div>
+  </div>
+
+  <!-- ========== PREVIEW ========== -->
+  <div class="screen" id="screen-preview">
+    <div class="app-header">
+      <h1 id="prevModeTitle">Riepilogo · Libero</h1>
+      <span class="badge">Modifica se serve</span>
+      <div style="width:36px"></div>
+    </div>
+    <div class="structured-preview" id="previewContainer">
+
+      <!-- CONTATTO -->
+      <div class="preview-group" data-show="free contact">
+        <div class="preview-group-title">Contatto <span class="mode-hint">Libero · Contatto</span></div>
+        <div class="preview-field" data-show="free contact">
+          <div class="preview-label">Nome e cognome</div>
+          <div class="preview-value"><input type="text" id="prefContact" placeholder="es. Mario Rossi"></div>
+        </div>
+        <div class="preview-field" data-show="free contact">
+          <div class="preview-label">Telefono</div>
+          <div class="preview-value"><input type="text" id="prefPhone" placeholder="es. 345 123 4567"></div>
+        </div>
+        <div class="preview-field" data-show="free contact">
+          <div class="preview-label">Email</div>
+          <div class="preview-value"><input type="text" id="prefEmail" placeholder="es. mario@email.it"></div>
+        </div>
+        <div class="preview-field" data-show="free contact">
+          <div class="preview-label">Intento</div>
+          <div class="preview-value"><input type="text" id="prefIntent" placeholder="Vendere / Comprare / Affittare / Valutazione"></div>
+        </div>
+      </div>
+
+      <!-- IMMOBILE -->
+      <div class="preview-group" data-show="free property">
+        <div class="preview-group-title">Immobile <span class="mode-hint">Libero · Immobile</span></div>
+        <div class="preview-field" data-show="free property">
+          <div class="preview-label">Tipo e zona</div>
+          <div class="preview-value"><input type="text" id="prefProperty" placeholder="es. trilocale zona centro"></div>
+        </div>
+        <div class="preview-field" data-show="free property">
+          <div class="preview-label">Prezzo</div>
+          <div class="preview-value"><input type="text" id="prefPrice" placeholder="es. 250.000 €"></div>
+        </div>
+        <div class="preview-field" data-show="property">
+          <div class="preview-label">Superficie (mq)</div>
+          <div class="preview-value"><input type="text" id="prefSqm" placeholder="es. 100"></div>
+        </div>
+        <div class="preview-field" data-show="property">
+          <div class="preview-label">Vani / Camere / Bagni</div>
+          <div class="preview-value"><input type="text" id="prefRooms" placeholder="es. 5 vani, 3 camere, 2 bagni"></div>
+        </div>
+        <div class="preview-field" data-show="property">
+          <div class="preview-label">Piano</div>
+          <div class="preview-value"><input type="text" id="prefFloor" placeholder="es. 2° con ascensore"></div>
+        </div>
+        <div class="preview-field" data-show="free property">
+          <div class="preview-label">Caratteristiche</div>
+          <div class="preview-value"><input type="text" id="prefFeatures" placeholder="es. balcone, ascensore, box auto, arredato"></div>
+        </div>
+        <div class="preview-field" data-show="free property">
+          <div class="preview-label">Stato</div>
+          <div class="preview-value"><input type="text" id="prefCondition" placeholder="Ottimo / Buono / Da ristrutturare / Nuovo"></div>
+        </div>
+      </div>
+
+      <!-- ATTIVITÀ -->
+      <div class="preview-group" data-show="free contact activity">
+        <div class="preview-group-title">Attività <span class="mode-hint">Libero · Contatto · Attività</span></div>
+        <div class="preview-field" data-show="free contact activity">
+          <div class="preview-label">Azione / Prossimo passo</div>
+          <div class="preview-value"><input type="text" id="prefAction" placeholder="es. visita venerdì 16:00"></div>
+        </div>
+        <div class="preview-field" data-show="free contact activity">
+          <div class="preview-label">Data / Ora</div>
+          <div class="preview-value"><input type="text" id="prefDatetime" placeholder="es. venerdì 14:00"></div>
+        </div>
+        <div class="preview-field" data-show="free contact activity">
+          <div class="preview-label">Priorità</div>
+          <div class="preview-value"><input type="text" id="prefPriority" placeholder="alta / media / bassa"></div>
+        </div>
+      </div>
+
+      <!-- TRASCRIZIONE -->
+      <div class="preview-group" data-show="free contact property activity">
+        <div class="preview-group-title">Trascrizione completa</div>
+        <div class="preview-field">
+          <div class="preview-label">Testo originale</div>
+          <div class="preview-value"><textarea id="prefNotes" style="line-height:1.6;min-height:80px;height:auto;resize:vertical;max-height:none" oninput="this.style.height='';this.style.height=this.scrollHeight+'px'"></textarea></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="preview-actions">
+      <button class="btn-back-sm" id="btnBackFromPreview">Indietro</button>
+      <button class="btn-save" id="btnSaveNote">Salva</button>
+      <button class="btn-crm" id="btnCopyMiogest">📋 Copia per Miogest</button>
+    </div>
+  </div>
+
+  <!-- ========== DETAIL ========== -->
+  <div class="screen" id="screen-detail">
+    <div class="detail-header">
+      <button class="back-icon" id="btnBackToDashboard">←</button>
+      <div class="detail-contact" id="detContact"></div>
+    </div>
+    <div class="detail-meta" id="detMeta"></div>
+    <div style="flex:1; overflow-y:auto; padding-right:4px; scrollbar-width:thin">
+
+      <div class="detail-group">
+        <div class="detail-group-title">Contatto</div>
+        <div class="detail-row"><span class="detail-row-label">Nome</span><span class="detail-row-value" id="detContactName"></span><button class="detail-copy-icon" data-field="contact">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Tel</span><span class="detail-row-value" id="detPhone"></span><button class="detail-copy-icon" data-field="phone">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Email</span><span class="detail-row-value" id="detEmail"></span><button class="detail-copy-icon" data-field="email">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Intento</span><span class="detail-row-value" id="detIntent"></span><button class="detail-copy-icon" data-field="intent">copia</button></div>
+      </div>
+
+      <div class="detail-group">
+        <div class="detail-group-title">Immobile</div>
+        <div class="detail-row"><span class="detail-row-label">Tipo</span><span class="detail-row-value" id="detProperty"></span><button class="detail-copy-icon" data-field="property">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Prezzo</span><span class="detail-row-value" id="detPrice"></span><button class="detail-copy-icon" data-field="price">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Mq</span><span class="detail-row-value small" id="detSqm"></span><button class="detail-copy-icon" data-field="sqm">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Vani</span><span class="detail-row-value small" id="detRooms"></span><button class="detail-copy-icon" data-field="rooms">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Piano</span><span class="detail-row-value small" id="detFloor"></span><button class="detail-copy-icon" data-field="floor">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Caratt.</span><span class="detail-row-value small" id="detFeatures"></span><button class="detail-copy-icon" data-field="features">copia</button></div>
+      </div>
+
+      <div class="detail-group">
+        <div class="detail-group-title">Attività</div>
+        <div class="detail-row"><span class="detail-row-label">Azione</span><span class="detail-row-value" id="detAction"></span><button class="detail-copy-icon" data-field="action">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Data</span><span class="detail-row-value" id="detDatetime"></span><button class="detail-copy-icon" data-field="datetime">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Priorità</span><span class="detail-row-value" id="detPriorityDetail"></span><button class="detail-copy-icon" data-field="priority">copia</button></div>
+      </div>
+
+      <div class="detail-group">
+        <div class="detail-group-title">Nota completa</div>
+        <div class="detail-row" style="flex-direction:column;align-items:stretch;gap:4px">
+          <div class="detail-row-value small" id="detFullNote" style="font-size:0.78rem;line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto;background:var(--bg3);padding:10px 12px;border-radius:var(--radius-sm)"></div>
+        </div>
+      </div>
+
+      <button class="detail-big-copy" id="btnCopyAllMiogest">📋 Copia tutto per Miogest</button>
+      <button class="detail-edit-btn" id="btnEditNote">🎤 Modifica con voce</button>
+      <button class="detail-delete" id="btnDeleteNote">Elimina nota</button>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ===== SETTINGS ===== -->
+  <div class="overlay" id="settingsOverlay">
+    <div class="overlay-content">
+      <div class="overlay-title">HP Lab · Note Vocali</div>
+      <div class="overlay-row"><label>Versione</label><span class="value">2.1.0</span></div>
+      <div class="overlay-row"><label>Memoria locale usata</label><span class="value" id="storageSize">0 KB</span></div>
+      <div class="overlay-row"><label>PIN</label><span class="value">●●●●</span></div>
+      <div class="overlay-row" style="border:none"><label>Dati</label><span class="value">Solo su questo dispositivo</span></div>
+      <div style="font-size:0.7rem;color:var(--fg4);margin-top:12px;line-height:1.6">
+        I dati non lasciano mai questo telefono.<br>
+        Seleziona la modalità prima di registrare per un'estrazione mirata.
+      </div>
+      <button class="overlay-close" id="btnClearAll" style="margin-top:12px;border-color:rgba(239,68,68,0.15);color:#ef4444">Cancella tutte le note</button>
+      <button class="overlay-close" id="btnCloseSettings" style="margin-top:8px">Chiudi</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+'use strict';
+
+// ======== STORAGE ========
+const STORAGE_KEY = 'hplab_notes';
+const PIN_KEY = 'hplab_pin';
+const DEFAULT_PIN = '1234';
+
+function getNotes() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; }
+}
+function saveNotes(notes) { localStorage.setItem(STORAGE_KEY, JSON.stringify(notes)); }
+function getPin() { return localStorage.getItem(PIN_KEY) || DEFAULT_PIN; }
+function setPin(pin) { localStorage.setItem(PIN_KEY, pin); }
+
+// ======== MODE ========
+let activeMode = 'free';
+
+const MODE_NAMES = { free: '🎙️ Libero', contact: '📞 Contatto', property: '🏠 Immobile', activity: '📅 Attività' };
+
+function setupModeChips() {
+  document.querySelectorAll('.mode-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      const mode = this.dataset.mode;
+      setMode(mode);
+    });
+  });
+}
+
+function setMode(mode) {
+  activeMode = mode;
+  document.querySelectorAll('.mode-chip').forEach(ch => {
+    ch.classList.toggle('active', ch.dataset.mode === mode);
+  });
+  const t1 = document.getElementById('recModeTitle');
+  const t2 = document.getElementById('prevModeTitle');
+  if (t1) t1.textContent = 'Nuova Nota · ' + MODE_NAMES[mode];
+  if (t2) t2.textContent = 'Riepilogo · ' + MODE_NAMES[mode];
+  // Hide guide toggle in free mode
+  const guideBar = document.getElementById('guideBar');
+  if (guideBar) guideBar.style.display = mode === 'free' ? 'none' : '';
+}
+
+// ======== SCREENS ========
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ======== PIN ========
+let pinBuffer = '', pinAttempts = 0;
+function renderPinDots() {
+  document.querySelectorAll('.pin-dot').forEach((d, i) => d.classList.toggle('filled', i < pinBuffer.length));
+}
+function setupPin() {
+  if (!localStorage.getItem(PIN_KEY)) setPin(DEFAULT_PIN);
+  document.getElementById('pinKb').addEventListener('click', function(e) {
+    const key = e.target.closest('.pin-key');
+    if (!key) return;
+    const err = document.getElementById('pinError');
+    if (key.classList.contains('del')) { pinBuffer = pinBuffer.slice(0, -1); renderPinDots(); return; }
+    const v = key.dataset.v;
+    if (!v || pinBuffer.length >= 4) return;
+    pinBuffer += v; renderPinDots();
+    if (pinBuffer.length === 4) {
+      if (pinBuffer === getPin()) { pinAttempts = 0; pinBuffer = ''; err.textContent = ''; showScreen('screen-main'); renderDashboard(); }
+      else { pinAttempts++; pinBuffer = ''; renderPinDots(); err.textContent = 'PIN errato. Riprova.'; if (pinAttempts >= 3) err.textContent = 'Troppi tentativi. Ricarica la pagina.'; }
+    }
+  });
+}
+
+// ======== RECORDING ========
+let recognition = null, isRecording = false, recStartTime = null, recTimerInterval = null, finalTranscript = '', interimTranscript = '';
+
+function getSpeechRec() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR(); r.lang = 'it-IT'; r.continuous = true; r.interimResults = true;
+  return r;
+}
+
+function startRecording() {
+  cameFromGuide = false;
+  // Se la guida vocale è attiva, avvia il flusso guidato
+  const guideToggle = document.getElementById('guideToggle');
+  if (guideToggle && guideToggle.checked) {
+    startGuide();
+    return;
+  }
+  const SR = getSpeechRec();
+  if (!SR) { showToast('Il tuo browser non supporta il riconoscimento vocale. Usa Chrome su desktop o Android.'); return; }
+  recognition = SR;
+  finalTranscript = ''; interimTranscript = '';
+  document.getElementById('recTranscript').textContent = '';
+  isRecording = true; recStartTime = Date.now();
+  document.getElementById('btnRecord').classList.add('recording');
+  showScreen('screen-record');
+  document.getElementById('recordingStatus').textContent = 'In ascolto...';
+  document.getElementById('recTimer').textContent = '0:00';
+  recTimerInterval = setInterval(updateRecTimer, 200);
+  recognition.onresult = function(event) {
+    interimTranscript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) finalTranscript += t + ' ';
+      else interimTranscript += t;
+    }
+    document.getElementById('recTranscript').innerHTML = escapeHtml(finalTranscript) + '<span style="color:var(--fg4)">' + escapeHtml(interimTranscript) + '</span>';
+    document.getElementById('recTranscript').scrollTop = document.getElementById('recTranscript').scrollHeight;
+  };
+  recognition.onerror = function(event) { if (event.error === 'no-speech') return; showToast('Errore: ' + event.error); stopRecording(false); };
+  recognition.onend = function() { if (isRecording) { try { recognition.start(); } catch(e) {} } };
+  try { recognition.start(); } catch(e) {}
+}
+function updateRecTimer() {
+  const elapsed = Math.floor((Date.now() - recStartTime) / 1000);
+  document.getElementById('recTimer').textContent = Math.floor(elapsed / 60) + ':' + String(elapsed % 60).padStart(2, '0');
+  if (elapsed > 300) { showToast('Limite di 5 minuti raggiunto'); stopRecording(true); }
+}
+function stopRecording(showPreview) {
+  if (!isRecording) return;
+  isRecording = false; clearInterval(recTimerInterval);
+  document.getElementById('btnRecord').classList.remove('recording');
+  document.getElementById('recordingStatus').textContent = 'Fermo';
+  try { if (recognition) { recognition.onend = null; recognition.stop(); } } catch(e) {}
+  recognition = null;
+  const text = (finalTranscript + interimTranscript).trim();
+  if (showPreview && text.length > 0) showPreviewScreen(text);
+  else if (showPreview) { showToast('Nessun testo rilevato. Riprova.'); showScreen('screen-main'); }
+}
+document.getElementById('btnRecord').addEventListener('click', startRecording);
+document.getElementById('btnCancelRec').addEventListener('click', function() { stopRecording(false); showScreen('screen-main'); });
+document.getElementById('btnStopRec').addEventListener('click', function() { stopRecording(true); });
+
+// ======== GUIDA VOCALE ========
+const guideQuestions = {
+  contact: [
+    { field:'contact', q:'Chi hai contattato? Dimmi nome e cognome del contatto.' },
+    { field:'phone', q:'Qual è il numero di telefono?' },
+    { field:'email', q:'Hai un indirizzo email?' },
+    { field:'intent', q:"Qual è l'intento? Vendere, comprare, affittare o valutazione?" }
+  ],
+  property: [
+    { field:'property', q:'Che tipo di immobile?' },
+    { field:'price', q:'Qual è il prezzo?' },
+    { field:'sqm', q:'Quanti metri quadri?' },
+    { field:'rooms', q:'Quanti vani, camere e bagni?' },
+    { field:'floor', q:'A che piano si trova?' },
+    { field:'features', q:'Quali caratteristiche ha? Balcone, box auto, ascensore?' },
+    { field:'condition', q:"In che stato è? Ottimo, buono, da ristrutturare?" }
+  ],
+  activity: [
+    { field:'action', q:'Che tipo di attività devi registrare?' },
+    { field:'datetime', q:'Per quando? Data e ora.' },
+    { field:'priority', q:'Che priorità ha? Alta, media o bassa?' }
+  ]
+};
+
+const guideFieldLabels = {
+  contact:'Nome', phone:'Telefono', email:'Email', intent:'Intento',
+  property:'Tipo', price:'Prezzo', sqm:'Mq', rooms:'Vani',
+  floor:'Piano', features:'Caratteristiche', condition:'Stato',
+  action:'Azione', datetime:'Data/ora', priority:'Priorità'
+};
+
+let guideState = null;
+let cameFromGuide = false;
+let guideRecognition = null;
+
+function isGuideActive() {
+  return guideState && guideState.active;
+}
+
+document.getElementById('guideToggle').addEventListener('change', function() {
+  const label = document.getElementById('guideBarLabel');
+  if (this.checked) {
+    label.textContent = 'Guida vocale attiva';
+    label.classList.add('active');
+  } else {
+    label.textContent = 'Modalità guidata';
+    label.classList.remove('active');
+  }
+});
+
+function showGuidePanel(show) {
+  document.getElementById('recordStatusArea').classList.toggle('hidden', show);
+  document.getElementById('recTranscript').classList.toggle('hidden', show);
+  document.getElementById('guidePanel').classList.toggle('active', show);
+  document.getElementById('recordActions').classList.toggle('hidden', show);
+}
+
+function speak(text, callback) {
+  if (!window.speechSynthesis) { if (callback) callback(); return; }
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'it-IT'; u.rate = 0.88; u.pitch = 1.0;
+  u.onend = function() { if (callback) callback(); };
+  u.onerror = function() { if (callback) callback(); };
+  window.speechSynthesis.speak(u);
+}
+
+function updateGuideStatus(type, msg) {
+  const el = document.getElementById('guideStatus');
+  el.className = 'guide-status ' + type;
+  if (type === 'listening') el.innerHTML = '<span class="dot"></span> ' + (msg || 'In ascolto...');
+  else if (type === 'thinking') el.textContent = msg || 'Elaborazione...';
+  else if (type === 'speaking') el.textContent = msg || 'Parlami...';
+  else el.textContent = msg || '';
+}
+
+function renderGuideFields() {
+  const container = document.getElementById('guideFields');
+  if (!guideState) return;
+  const qs = guideQuestions[guideState.mode];
+  container.innerHTML = qs.map((q, i) => {
+    const ans = guideState.answers[q.field] || '';
+    const miss = guideState.missing[q.field];
+    const cls = i === guideState.step ? 'current' : (ans || miss ? 'done' : '');
+    const icon = cls === 'current' ? '▶' : (miss ? '✕' : (ans ? '✓' : '○'));
+    return `<div class="guide-field ${cls}">
+      <span class="guide-field-icon">${icon}</span>
+      <span class="guide-field-name">${guideFieldLabels[q.field] || q.field}</span>
+      <span class="guide-field-value">${miss ? 'Mancante' : (ans || '—')}</span>
+    </div>`;
+  }).join('');
+}
+
+function startGuide() {
+  const mode = activeMode;
+  if (mode === 'free') { showToast('Seleziona una modalità (Contatto, Immobile o Attività) per la guida.'); return; }
+  if (!guideQuestions[mode]) { showToast('Nessuna guida disponibile per questa modalità.'); return; }
+
+  guideState = { active: true, mode: mode, step: 0, answers: {}, missing: {} };
+  showScreen('screen-record');
+  showGuidePanel(true);
+  renderGuideFields();
+
+  // Hide normal recording elements
+  document.getElementById('recTimer').textContent = '0:00';
+  document.getElementById('recTranscript').textContent = '';
+
+  askQuestion(0);
+}
+
+function askQuestion(index) {
+  if (!guideState || !guideState.active) return;
+  const qs = guideQuestions[guideState.mode];
+  if (index >= qs.length) { endGuide(); return; }
+
+  guideState.step = index;
+  const q = qs[index];
+
+  document.getElementById('guideQuestionText').textContent = q.q;
+  document.getElementById('guideProgress').textContent = (index + 1) + ' / ' + qs.length;
+  renderGuideFields();
+
+  updateGuideStatus('speaking', 'Parlami...');
+
+  // Prima parla la domanda, poi ascolta
+  speak(q.q, function() {
+    if (!guideState || !guideState.active) return;
+    listenForAnswer();
+  });
+}
+
+function listenForAnswer() {
+  if (!guideState || !guideState.active) return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showToast('Riconoscimento vocale non disponibile.'); endGuide(); return; }
+
+  updateGuideStatus('listening');
+  const r = new SR();
+  guideRecognition = r;
+  r.lang = 'it-IT'; r.continuous = false; r.interimResults = false;
+
+  r.onresult = function(event) {
+    const text = event.results[0][0].transcript;
+    processAnswer(text.trim());
+  };
+  r.onerror = function(event) {
+    // Errori permanenti → interrompi la guida
+    if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+      showToast('Microfono non accessibile. Controlla i permessi.');
+      endGuide();
+      return;
+    }
+    // Silenzio o errore temporaneo → riprova
+    updateGuideStatus('listening', 'Non ho sentito. Riprova.');
+    setTimeout(function() { if (guideState && guideState.active) listenForAnswer(); }, 1500);
+  };
+  try { r.start(); } catch(e) { processAnswer(''); }
+}
+
+function processAnswer(text) {
+  if (!guideState || !guideState.active) return;
+  const qs = guideQuestions[guideState.mode];
+  const q = qs[guideState.step];
+  if (!q) { endGuide(); return; }
+
+  updateGuideStatus('thinking', 'Ok!');
+
+  // Controllo se è un "non ricordo"
+  const nonRicordoRx = /non (ricordo|so|mi ricordo|lo so|ho idea|ho (il )?(numero|telefono|email|indirizzo|informazioni)|c'è l'ho|ho presente)|non mi viene in mente|adesso non|mi sfugge|non lo ricordo|lo chiederò|devo verificare|ess\b|ehm\b|aspetta|aspet\b|passiamo|prossimo/i;
+
+  if (!text || nonRicordoRx.test(text)) {
+    guideState.missing[q.field] = true;
+    updateGuideStatus('thinking', 'Campo segnato come mancante ✓');
+    setTimeout(function() { if (guideState && guideState.active) nextQuestion(); }, 800);
+    return;
+  }
+
+  // Salva risposta
+  guideState.answers[q.field] = text;
+  renderGuideFields();
+
+  setTimeout(function() { if (guideState && guideState.active) nextQuestion(); }, 500);
+}
+
+function nextQuestion() {
+  if (!guideState || !guideState.active) return;
+
+  const qs = guideQuestions[guideState.mode];
+
+  // In modalità edit: salta i campi già compilati, chiede solo i vuoti
+  if (guideState.editMode) {
+    for (let i = guideState.step + 1; i < qs.length; i++) {
+      if (!guideState.answers[qs[i].field]) {
+        askQuestion(i);
+        return;
+      }
+    }
+    // Nessun altro campo vuoto → fine
+    endGuide();
+    return;
+  }
+
+  const next = guideState.step + 1;
+  if (next >= qs.length) {
+    endGuide();
+  } else {
+    askQuestion(next);
+  }
+}
+
+function endGuide() {
+  if (!guideState || !guideState.active) return;
+  guideState.active = false;
+
+  // Stop any speech
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+  // Stop recognition
+  if (guideRecognition) {
+    try { guideRecognition.abort(); } catch(e) {}
+    guideRecognition = null;
+  }
+
+  updateGuideStatus('done', 'Guida completata ✓');
+
+  // Build preview data from guide answers
+  const mode = guideState.mode;
+  const ans = guideState.answers;
+  const miss = guideState.missing;
+
+  // Parse answers through the parser when possible
+  let fullText = Object.values(ans).join('. ');
+  let parsed = {};
+  if (fullText.trim()) {
+    parsed = parseTranscript(fullText);
+  }
+
+  const previewData = {};
+  const allFields = ['contact','phone','email','intent','property','price','sqm','rooms','floor','features','condition','action','datetime','priority'];
+  for (const f of allFields) {
+    if (ans[f]) {
+      // Se abbiamo una risposta diretta, prova a parsificarla specificamente
+      if (f === 'contact') {
+        const m = ans[f].match(/(?:[Mme]\s+)?([A-Za-zàèéìòù]+\s+[A-Za-zàèéìòù]+)/);
+        previewData[f] = m ? m[1] : ans[f];
+      } else if (f === 'phone') {
+        const m = ans[f].match(/(?:\+39\s?)?(?:3\d{2}[-\s]?\d{6,7}|0\d{2,4}[-\s]?\d{5,8})/);
+        previewData[f] = m ? m[0].trim() : ans[f];
+      } else if (f === 'email') {
+        const m = ans[f].match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+        previewData[f] = m ? m[0] : ans[f];
+      } else if (f === 'price') {
+        const m = ans[f].match(/(\d+)\s*(mila|milioni)?/i);
+        previewData[f] = m ? (m[1] + (m[2] === 'milioni' ? ' milioni €' : (m[2] === 'mila' ? '.000 €' : ' €'))) : ans[f];
+      } else if (f === 'priority') {
+        if (/alta|urgente/i.test(ans[f])) previewData[f] = 'alta';
+        else if (/media|normale/i.test(ans[f])) previewData[f] = 'media';
+        else if (/bassa|tranquill/i.test(ans[f])) previewData[f] = 'bassa';
+        else previewData[f] = 'media';
+      } else if (f === 'property') {
+        const propTypes = ['bilocale','trilocale','quadrilocale','monolocale','villa','attico','loft','appartamento','ufficio','negozio','capannone','terreno','rustico','casa','immobile','palazzo','cascina','mansarda','villetta','penthouse','open space'];
+        const pLower = ans[f].toLowerCase();
+        let found = '';
+        for (const t of propTypes) { if (pLower.includes(t)) { found = t.charAt(0).toUpperCase() + t.slice(1); break; } }
+        previewData[f] = found || parsed[f] || ans[f];
+      } else {
+        previewData[f] = parsed[f] || ans[f];
+      }
+    } else if (miss[f]) {
+      previewData[f] = ''; // vuoto, ma verrà marcato come mancante
+    } else {
+      previewData[f] = parsed[f] || '';
+    }
+  }
+
+  showGuidePreview(previewData, miss);
+}
+
+function showGuidePreview(data, missing) {
+  // Popola i campi preview con i dati della guida
+  document.getElementById('prefContact').value = data.contact || '';
+  document.getElementById('prefPhone').value = data.phone || '';
+  document.getElementById('prefEmail').value = data.email || '';
+  document.getElementById('prefIntent').value = data.intent || '';
+  document.getElementById('prefProperty').value = data.property || '';
+  document.getElementById('prefPrice').value = data.price || '';
+  document.getElementById('prefSqm').value = data.sqm || '';
+  document.getElementById('prefRooms').value = data.rooms || '';
+  document.getElementById('prefFloor').value = data.floor || '';
+  document.getElementById('prefFeatures').value = data.features || '';
+  document.getElementById('prefCondition').value = data.condition || '';
+  document.getElementById('prefAction').value = data.action || '';
+  document.getElementById('prefDatetime').value = data.datetime || '';
+  document.getElementById('prefPriority').value = data.priority || '';
+
+  // Trascrizione: mostra tutte le risposte date
+  const qs = guideQuestions[guideState ? guideState.mode : activeMode];
+  let transcriptLines = [];
+  if (qs) {
+    for (const q of qs) {
+      const label = guideFieldLabels[q.field] || q.field;
+      const ans = guideState ? guideState.answers[q.field] : '';
+      const miss = guideState ? guideState.missing[q.field] : false;
+      if (miss) transcriptLines.push('[' + label + '] → Mancante');
+      else if (ans) transcriptLines.push('[' + label + '] ' + ans);
+    }
+  }
+  const notesEl = document.getElementById('prefNotes');
+  notesEl.value = transcriptLines.join('\n');
+  notesEl.style.height = ''; notesEl.style.height = notesEl.scrollHeight + 'px';
+
+  // Segna campi mancanti in rosso
+  const fieldMap = {
+    contact:'prefContact', phone:'prefPhone', email:'prefEmail', intent:'prefIntent',
+    property:'prefProperty', price:'prefPrice', sqm:'prefSqm', rooms:'prefRooms',
+    floor:'prefFloor', features:'prefFeatures', condition:'prefCondition',
+    action:'prefAction', datetime:'prefDatetime', priority:'prefPriority'
+  };
+
+  // Reset всех стилей
+  for (const id of Object.values(fieldMap)) {
+    document.getElementById(id).closest('.preview-value').classList.remove('missing');
+  }
+
+  // Mark missing fields
+  if (missing) {
+    for (const [field, isMissing] of Object.entries(missing)) {
+      if (isMissing && fieldMap[field]) {
+        document.getElementById(fieldMap[field]).closest('.preview-value').classList.add('missing');
+      }
+    }
+  }
+
+  // Show/hide groups based on mode
+  const mode = guideState ? guideState.mode : activeMode;
+  document.querySelectorAll('#previewContainer .preview-group').forEach(g => {
+    const show = g.dataset.show.split(' ').includes(mode);
+    g.classList.toggle('hidden', !show);
+  });
+  document.querySelectorAll('#previewContainer .preview-field[data-show]').forEach(f => {
+    const show = f.dataset.show.split(' ').includes(mode);
+    f.classList.toggle('hidden', !show);
+  });
+
+  // Clean up guide state for preview
+  cameFromGuide = true;
+  guideState = null;
+  showGuidePanel(false);
+  showScreen('screen-preview');
+}
+
+// Guide buttons
+document.getElementById('guideBtnSkip').addEventListener('click', function() {
+  if (!guideState || !guideState.active) return;
+  const qs = guideQuestions[guideState.mode];
+  const q = qs[guideState.step];
+  if (q) guideState.missing[q.field] = true;
+  updateGuideStatus('thinking', 'Saltato ✓');
+  renderGuideFields();
+  setTimeout(function() { if (guideState && guideState.active) nextQuestion(); }, 400);
+});
+
+document.getElementById('guideBtnEnd').addEventListener('click', function() {
+  if (!guideState || !guideState.active) return;
+  endGuide();
+});
+
+// ======== PARSER AVANZATO ========
+const MONTHS_IT = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+
+function parseTranscript(text) {
+  const lower = text.toLowerCase();
+  let contact = '', phone = '', email = '', property = '', price = '';
+  let sqm = '', rooms = '', bathrooms = '', floor = '', features = '', condition = '';
+  let action = '', datetime = '', priority = 'media', intent = '';
+
+  // --- CONTATTO ---
+  const namePatterns = [
+    /(?:ho (?:parlato con|visto|incontrato|contattato) (?:il |la |il signor |la signora |il sig |la sig |da |con )?)([A-Z][a-zàèéìòù]+(?:\s+[A-Z][a-zàèéìòù]+)?)/,
+    /(?:signor[ae]?\s+)([A-Z][a-zàèéìòù]+(?:\s+[A-Z][a-zàèéìòù]+)?)/,
+    /(?:con (?:il |la )?(?:signor[ae]?\s+)?)([A-Z][a-zàèéìòù]+(?:\s+[A-Z][a-zàèéìòù]+)?)/,
+    /(?:mi (?:ha )?chiamato\s+)([A-Z][a-zàèéìòù]+(?:\s+[A-Z][a-zàèéìòù]+)?)/,
+    /(?:si (?:chiama|presenta)\s+)([A-Z][a-zàèéìòù]+(?:\s+[A-Z][a-zàèéìòù]+)?)/,
+    /(?:ho (?:accolto|ricevuto) (?:il |la |il signor |la signora )?)([A-Z][a-zàèéìòù]+(?:\s+[A-Z][a-zàèéìòù]+)?)/
+  ];
+  for (const rx of namePatterns) { const m = text.match(rx); if (m) { contact = m[1]; break; } }
+  if (!contact) { const fb = text.match(/(?:cliente\s+|contatto\s+|un certo\s+|un tale\s+|tizio\s+|sig(?:nor[ae]|\.)?\s+)([A-Z][a-zàèéìòù]+\s+[A-Z][a-zàèéìòù]+)/i); if (fb) contact = fb[1]; }
+
+  // Telefono
+  const phoneRx = /(?:\+39\s?)?(?:3\d{2}[-\s]?\d{6,7}|0\d{2,4}[-\s]?\d{5,8})/;
+  const phoneM = text.match(phoneRx);
+  if (phoneM) phone = phoneM[0].trim();
+
+  // Email
+  const emailM = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  if (emailM) email = emailM[0];
+
+  // Intento
+  const intentMap = [
+    {rx:/vendere|vendita|mettere in vendita|affidare in vendita|in vendita/, label:'Vendere'},
+    {rx:/comprare|acquistare|acquisto|cercano|cerco un|sono interessat[oa] a|cercano/, label:'Comprare'},
+    {rx:/affittare|affitto|locare|locazione|prendere in affitto/, label:'Affittare'},
+    {rx:/investire|investimento|investitore/, label:'Investire'},
+    {rx:/valutare|valutazione|far valutare|vorrei far vedere/, label:'Valutazione'}
+  ];
+  for (const i of intentMap) { if (i.rx.test(lower)) { intent = i.label; break; } }
+
+  // --- IMMOBILE (solo tipologia, senza zona) ---
+  const propTypes = ['bilocale','trilocale','quadrilocale','monolocale','villa','attico','loft','appartamento','ufficio','negozio','capannone','terreno','rustico','casa','immobile','palazzo','cascina','mansarda','villetta','penthouse','open space'];
+  for (const p of propTypes) {
+    if (lower.includes(p)) {
+      property = p.charAt(0).toUpperCase() + p.slice(1);
+      break;
+    }
+  }
+
+  // Prezzo
+  const pRx = /(\d{1,3}(?:\.\d{3})*)\s*(mila|milioni)\s*(?:euro|€)|(\d{1,3}(?:\.\d{3})*(?:[.,]\d{2})?)\s*(?:euro|€)|(?:euro|€)\s*(\d{1,3}(?:\.\d{3})*(?:[.,]\d{2})?)/i;
+  const pM = text.match(pRx);
+  if (pM) {
+    if (pM[1] && pM[2]) price = pM[1] + (pM[2].toLowerCase() === 'milioni' ? ' milioni €' : '.000 €');
+    else if (pM[3]) price = pM[3].replace(',','.') + ' €';
+    else if (pM[4]) price = pM[4].replace(',','.') + ' €';
+  }
+
+  // Superficie
+  const sqmRx = /(\d+)\s*(?:metri quadri|mq|m[²2]|metratura|metri|mq\b)/i;
+  const sqM = text.match(sqmRx);
+  if (sqM) sqm = sqM[1] + ' mq';
+
+  // Vani / camere / bagni
+  const vaniM = text.match(/(\d+)\s*(?:vani|stanze|locali)/i);
+  if (vaniM) rooms = vaniM[1] + ' vani';
+  const camM = text.match(/(\d+)\s*(?:camere da letto|camere|camera)/i);
+  if (camM) rooms = rooms ? rooms + ', ' + camM[1] + ' camere' : camM[1] + ' camere';
+  const bagniM = text.match(/(\d+)\s*(?:bagni|bagno|servizi)/i);
+  if (bagniM) bathrooms = bagniM[1] + ' bagni';
+
+  // Piano
+  const floorOrd = {primo:'1°',secondo:'2°',terzo:'3°',quarto:'4°',quinto:'5°',sesto:'6°',settimo:'7°',ottavo:'8°',nono:'9°',decimo:'10°',ultimo:'ultimo'};
+  const fM = text.match(/(?:piano\s*(\d+)|(primo|secondo|terzo|quarto|quinto|sesto|settimo|ottavo|nono|decimo|ultimo)\s*piano|terra|piano terra)/i);
+  if (fM) {
+    if (fM[1]) floor = fM[1] + '°';
+    else if (fM[2] && floorOrd[fM[2].toLowerCase()]) floor = floorOrd[fM[2].toLowerCase()];
+    else if (fM[0].toLowerCase().includes('terra')) floor = 'Terra';
+  }
+  // Ascensore? Se menzionato, aggiungi al piano
+  if (floor && /ascensor/i.test(lower)) floor += ' con ascensore';
+
+  // Caratteristiche (sorted by length DESC per evitare duplicati: "box auto" prima di "box")
+  const featList = ['riscaldamento autonomo','aria condizionata','vista montagna','vista mare','vista lago','doppi servizi','box auto','posto auto','ascensore','giardino','balcone','terrazzo','terrazza','arredato','climatizzato','cantina','taverna','ripostiglio','caminetto','allarme','sicurezza','blindata'].sort((a,b)=>b.length-a.length);
+  const found = [];
+  for (const f of featList) {
+    if (lower.includes(f) && !found.some(ex => ex.includes(f))) {
+      found.push(f);
+    }
+  }
+  if (found.length) features = found.join(', ');
+
+  // Stato (best-match con punteggio, non first-match)
+  const conditionPatterns = [
+    {rx:/(?:in\s+)?ottim[oe]\s+(?:stato|condizioni)/i, label:'Ottimo', w:10},
+    {rx:/(?:in\s+)?ottime\s+condizioni/i, label:'Ottimo', w:10},
+    {rx:/(?:in\s+)?perfett[oe]\s+(?:stato|condizioni)/i, label:'Ottimo', w:10},
+    {rx:/(?:in\s+)?buon[oe]\s+(?:stato|condizioni)/i, label:'Buono', w:9},
+    {rx:/(?:in\s+)?buone\s+condizioni/i, label:'Buono', w:9},
+    {rx:/completamente\s+ristrutturat[oai]/i, label:'Ristrutturato', w:10},
+    {rx:/da\s+ristrutturare/i, label:'Da ristrutturare', w:8},
+    {rx:/da\s+restaurare/i, label:'Da ristrutturare', w:8},
+    {rx:/in\s+costruzione/i, label:'In costruzione', w:7},
+    {rx:/\bnuovo\s+(?:costruzione|edificio|immobile|appartamento|casa)\b/i, label:'Nuovo', w:9},
+    {rx:/\bristrutturat[oai]\b/i, label:'Ristrutturato', w:7},
+    {rx:/\bnuovo\b/i, label:'Nuovo', w:6},
+    {rx:/da\s+finire/i, label:'Da finire', w:6},
+    {rx:/(?:in\s+)?condizioni\s+accettabili/i, label:'Discreto', w:5},
+    {rx:/(?:in\s+)?discret[oe]\s+(?:stato|condizioni)/i, label:'Discreto', w:5},
+  ];
+  let bestCond = {label:'', w:-1};
+  for (const cp of conditionPatterns) {
+    if (cp.rx.test(text) && cp.w > bestCond.w) bestCond = cp;
+  }
+  // "abitabile" con controllo contesto (non se riferito a balcone/terrazzo)
+  const abRx = /\b(abitabile|abitato|abitata)\b/i;
+  const segRet = text.match(abRx);
+  if (segRet) {
+    const before = text.slice(Math.max(0, segRet.index-30), segRet.index).toLowerCase();
+    if (!/balcone|terrazz|verand|loggia/i.test(before)) {
+      if (4 > bestCond.w) bestCond = {label:'Abitabile', w:4};
+    }
+  }
+  // "imbiancare" e simili → condizioni da ritoccare ma già vivibile
+  if (/(?:imbianc|tinteggiat|ridare\s+un\s+tono|sistemare\s+la\s+vernice)/i.test(text)) {
+    if (5 > bestCond.w) bestCond = {label:'Buono', w:5};
+  }
+  condition = bestCond.label;
+
+  // --- ATTIVITÀ (operazione svolta, es. "visita valutazione", "visita per vendita") ---
+  // Cerchiamo prima pattern specifici che descrivono l'operazione completa
+  let actionMatch = null;
+  // 1. Pattern specifici con contesto
+  const specificActions = [
+    /(?:fare|faremo|facciamo|organizzare)?\s*(visita\s+(?:di\s+)?(?:valutazione|vendita|acquisto))/i,
+    /(?:fare|faremo|facciamo)?\s*(visita\s+per\s+(?:valutazione|vendita|acquisto))/i,
+    /(?:fare|faremo|facciamo)?\s*(visita\s+(?:all'|alla|al|da|del|dell'|dell|presso|dal))/i,
+    /(appuntamento\s+(?:per|di|da|con|alle|del|in|presso|il|la|domani|oggi))/i,
+    /(telefonata|chiamata)\s+(?:a|con|per|da|al|alla|allo|all')/i,
+    /(prev(?:entiv|isto)\s+(?:di|per|da|un|una|il|la))/i,
+    /(proposta\s+(?:di|per|d'|d'))/i,
+    /(rientr[oa]\s+(?:a|da|da\s+da|per|in|dal))/i,
+  ];
+  for (const rx of specificActions) {
+    const m = text.match(rx);
+    if (m) { actionMatch = m; break; }
+  }
+  if (actionMatch) {
+    action = actionMatch[1] || actionMatch[0];
+    // Estendi fino a fine frase se corto
+    if (action.length < 20) {
+      const end = text.indexOf('.', actionMatch.index);
+      const ext = text.slice(actionMatch.index, (end > actionMatch.index) ? end + 1 : actionMatch.index + 60);
+      if (ext.length > action.length) action = ext.trim().replace(/[,.!?;]$/,'').replace(/\s+/g,' ');
+    }
+  } else {
+    // 2. Fallback generico: cattura verbo + contesto fino a pausa
+    const genRx = /(?:visit|veder|chiam|appuntamento|inviar|proposta|preventiv|rientr|fiss|parlat)/i;
+    const gm = text.match(genRx);
+    if (gm) {
+      const idx = lower.search(genRx);
+      // Da 10 char prima a 50 dopo, taglia alla prima punteggiatura
+      const raw = text.slice(Math.max(0, idx-8), idx + 55);
+      action = raw.replace(/[,.!?;].*/,'').trim().replace(/\s+/g, ' ');
+      // Se ancora si chiama "visita" prova a prendere più contesto
+      if (/^visita$/i.test(action)) {
+        const after = text.slice(idx + 6, idx + 60).replace(/[,.!?;].*/,'').trim();
+        if (after) action = 'visita ' + after;
+      }
+    }
+  }
+
+  // Data/Ora
+  const giornoMap = {'lunedì':'lunedì','martedì':'martedì','mercoledì':'mercoledì','giovedì':'giovedì','venerdì':'venerdì','sabato':'sabato','domenica':'domenica','lunedi':'lunedì','martedi':'martedì','mercoledi':'mercoledì','giovedi':'giovedì','venerdi':'venerdì'};
+  const dNames = Object.keys(giornoMap);
+  const dtPatterns = [
+    new RegExp('(' + dNames.join('|') + ')\\s*(?:prossimo|della|\\s)*?(?:alle|ore|\\s)*?(\\d{1,2})(?:[.:](\\d{2}))?', 'i'),
+    /(?:alle|ore)\s*(\d{1,2})(?:[.:](\d{2}))?/i,
+    /(domani|lunedì prossimo|martedì prossimo|mercoledì prossimo|giovedì prossimo|venerdì prossimo|sabato prossimo|domenica prossima)\s*(?:alle|ore|mattina|pomeriggio)?\s*(\d{1,2})?(?:[.:]?(\d{2}))?/i,
+    /(\d{1,2})\s*(?:gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)\s*(?:alle|ore)\s*(\d{1,2})(?:[.:](\d{2}))?/i
+  ];
+  for (const rx of dtPatterns) {
+    const m = text.match(rx);
+    if (m) {
+      let parts = [];
+      if (m[1] && giornoMap[m[1].toLowerCase()]) parts.push(giornoMap[m[1].toLowerCase()]);
+      else if (m[1]) parts.push(m[1]);
+      if (m[2]) {
+        if (m[3] && m[3].length <= 2) parts.push(m[2] + ':' + m[3]);
+        else parts.push(m[2] + ':00');
+      }
+      datetime = parts.join(' '); break;
+    }
+  }
+
+  // Priorità
+  if (/urgente|immediato|concorrenza|perdere|fretta|importantissimo|stamattina|stasera|entro oggi/.test(lower)) priority = 'alta';
+  else if (/domani|settimana prossima|appena può|quanto prima|appena/.test(lower)) priority = 'media';
+  else if (/tranquill|nessuna fretta|quando ha tempo|non urgente|mese prossimo|nessuna corsa/.test(lower)) priority = 'bassa';
+
+  return { contact, phone, email, property, price, sqm, rooms, bathrooms, floor, features, condition, action, datetime, priority, intent };
+}
+
+// ======== PREVIEW ========
+function showPreviewScreen(text) {
+  const p = parseTranscript(text);
+  document.getElementById('prefContact').value = p.contact || '';
+  document.getElementById('prefPhone').value = p.phone || '';
+  document.getElementById('prefEmail').value = p.email || '';
+  document.getElementById('prefIntent').value = p.intent || '';
+  document.getElementById('prefProperty').value = p.property || '';
+  document.getElementById('prefPrice').value = p.price || '';
+  document.getElementById('prefSqm').value = p.sqm || '';
+  document.getElementById('prefRooms').value = [p.rooms, p.bathrooms].filter(Boolean).join(', ');
+  document.getElementById('prefFloor').value = p.floor || '';
+  document.getElementById('prefFeatures').value = p.features || '';
+  document.getElementById('prefCondition').value = p.condition || '';
+  document.getElementById('prefAction').value = p.action || '';
+  document.getElementById('prefDatetime').value = p.datetime || '';
+  document.getElementById('prefPriority').value = p.priority || '';
+  const notesEl = document.getElementById('prefNotes');
+  notesEl.value = text;
+  notesEl.style.height = ''; notesEl.style.height = notesEl.scrollHeight + 'px';
+
+  // Show/hide groups based on mode
+  const mode = activeMode;
+  document.querySelectorAll('#previewContainer .preview-group').forEach(g => {
+    const show = g.dataset.show.split(' ').includes(mode);
+    g.classList.toggle('hidden', !show);
+  });
+  document.querySelectorAll('#previewContainer .preview-field[data-show]').forEach(f => {
+    const show = f.dataset.show.split(' ').includes(mode);
+    f.classList.toggle('hidden', !show);
+  });
+
+  showScreen('screen-preview');
+}
+
+document.getElementById('btnBackFromPreview').addEventListener('click', function() {
+  if (editingNoteId) {
+    editingNoteId = null;
+    showScreen('screen-detail');
+    return;
+  }
+  if (cameFromGuide) {
+    cameFromGuide = false;
+    showScreen('screen-main');
+    return;
+  }
+  showScreen('screen-record');
+  document.getElementById('recTranscript').textContent = '';
+});
+
+document.getElementById('btnSaveNote').addEventListener('click', function() {
+  const txt = document.getElementById('prefNotes').value.trim();
+  const p = {
+    contact: document.getElementById('prefContact').value.trim() || '—',
+    phone: document.getElementById('prefPhone').value.trim(),
+    email: document.getElementById('prefEmail').value.trim(),
+    intent: document.getElementById('prefIntent').value.trim(),
+    property: document.getElementById('prefProperty').value.trim(),
+    price: document.getElementById('prefPrice').value.trim(),
+    sqm: document.getElementById('prefSqm').value.trim(),
+    rooms: document.getElementById('prefRooms').value.trim(),
+    floor: document.getElementById('prefFloor').value.trim(),
+    features: document.getElementById('prefFeatures').value.trim(),
+    condition: document.getElementById('prefCondition').value.trim(),
+    action: document.getElementById('prefAction').value.trim(),
+    datetime: document.getElementById('prefDatetime').value.trim(),
+    priority: document.getElementById('prefPriority').value.trim().toLowerCase()
+  };
+  if (!p.priority || !['alta','media','bassa'].includes(p.priority)) p.priority = 'media';
+
+  if (editingNoteId) {
+    // UPDATE: modifica la nota esistente
+    let notes = getNotes();
+    const idx = notes.findIndex(n => n.id === editingNoteId);
+    if (idx >= 0) {
+      notes[idx] = { ...notes[idx], ...p, notes: txt, transcript: notes[idx].transcript + '\n\n[Modifica] ' + txt };
+      saveNotes(notes);
+      showToast('Nota aggiornata ✓');
+    }
+    editingNoteId = null;
+    showScreen('screen-main'); renderDashboard();
+    return;
+  }
+
+  const note = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    ...p,
+    notes: txt, transcript: txt,
+    mode: activeMode,
+    date: new Date().toISOString(),
+    dateLabel: formatDateLabel(new Date())
+  };
+  const notes = getNotes(); notes.unshift(note); saveNotes(notes);
+  showToast('Nota salvata ✓');
+  showScreen('screen-main'); renderDashboard();
+});
+
+// Copia per Miogest (dalla preview)
+document.getElementById('btnCopyMiogest').addEventListener('click', function() {
+  let lines = [];
+  const mode = activeMode;
+  lines.push('═══════════ MIOGEST ═══════════');
+
+  if (mode === 'free' || mode === 'contact') {
+    const c = document.getElementById('prefContact').value.trim();
+    const p = document.getElementById('prefPhone').value.trim();
+    const e = document.getElementById('prefEmail').value.trim();
+    const intent = document.getElementById('prefIntent').value.trim();
+    if (c || p || e || intent) {
+      lines.push(''); lines.push('▸ CONTATTO');
+      if (c && c !== '—') lines.push('  Nome:      ' + c);
+      if (p) lines.push('  Telefono:  ' + p);
+      if (e) lines.push('  Email:     ' + e);
+      if (intent) lines.push('  Intento:   ' + intent);
+    }
+  }
+
+  if (mode === 'free' || mode === 'property') {
+    const prop = document.getElementById('prefProperty').value.trim();
+    const pr = document.getElementById('prefPrice').value.trim();
+    const sq = document.getElementById('prefSqm').value.trim();
+    const rr = document.getElementById('prefRooms').value.trim();
+    const fl = document.getElementById('prefFloor').value.trim();
+    const feat = document.getElementById('prefFeatures').value.trim();
+    const cond = document.getElementById('prefCondition').value.trim();
+    if (prop || pr || sq || rr || fl || feat || cond) {
+      lines.push(''); lines.push('▸ IMMOBILE');
+      if (prop) lines.push('  Tipo:      ' + prop);
+      if (pr) lines.push('  Prezzo:    ' + pr);
+      if (sq) lines.push('  Superficie: ' + sq);
+      if (rr) lines.push('  Vani:      ' + rr);
+      if (fl) lines.push('  Piano:     ' + fl);
+      if (feat) lines.push('  Dotazioni: ' + feat);
+      if (cond) lines.push('  Stato:     ' + cond);
+    }
+  }
+
+  if (mode === 'free' || mode === 'contact' || mode === 'activity') {
+    const a = document.getElementById('prefAction').value.trim();
+    const dt = document.getElementById('prefDatetime').value.trim();
+    const pri = document.getElementById('prefPriority').value.trim();
+    if (a || dt || pri) {
+      lines.push(''); lines.push('▸ ATTIVITÀ');
+      if (a) lines.push('  Azione:    ' + a);
+      if (dt) lines.push('  Data/Ora:  ' + dt);
+      if (pri) lines.push('  Priorità:  ' + pri);
+    }
+  }
+
+  const notes = document.getElementById('prefNotes').value.trim();
+  lines.push(''); lines.push('▸ NOTE'); lines.push(notes || '—');
+  lines.push(''); lines.push('────────────────────────────');
+
+  copyToClipboard(lines.join('\n'), 'Dati copiati per Miogest!');
+});
+
+// ======== DASHBOARD ========
+function renderDashboard() {
+  const notes = getNotes();
+  const list = document.getElementById('notesList');
+  const total = notes.length;
+  const high = notes.filter(n => n.priority === 'alta').length;
+  const today = notes.filter(n => new Date(n.date).toDateString() === new Date().toDateString()).length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statHigh').textContent = high;
+  document.getElementById('statToday').textContent = today;
+  document.getElementById('noteCount').textContent = total + ' note';
+  if (total === 0) { list.innerHTML = '<div class="empty-state"><div class="icon">🎤</div><p>Ancora nessuna nota.<br>Tocca il pulsante verde<br>per registrare la prima.</p></div>'; return; }
+  list.innerHTML = notes.map(n => {
+    const pClass = 'priority-' + (n.priority || 'media');
+    const c = n.contact && n.contact !== '—' ? n.contact : '<span class="empty-contact">Nuovo contatto</span>';
+    const det = [n.property, n.action].filter(Boolean).join(' · ');
+    return `
+      <div class="note-card" data-id="${n.id}">
+        <div class="card-header"><div class="card-contact">${c}</div><span class="card-priority ${pClass}">${n.priority || 'media'}</span></div>
+        ${det ? '<div class="card-details">' + escapeHtml(det) + '</div>' : ''}
+        ${n.intent ? '<span class="card-intent">' + n.intent + '</span>' : ''}
+        <div class="card-footer"><span class="card-date">${n.dateLabel || formatDateLabel(new Date(n.date))}</span><button class="card-copy-btn" data-id="${n.id}">Copia per CRM</button></div>
+      </div>
+    `;
+  }).join('');
+  list.querySelectorAll('.note-card').forEach(card => {
+    card.addEventListener('click', function(e) { if (e.target.closest('.card-copy-btn')) return; showDetail(this.dataset.id); });
+  });
+  list.querySelectorAll('.card-copy-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) { e.stopPropagation(); copyNoteForCRM(this.dataset.id); });
+  });
+}
+
+function copyNoteForCRM(id) {
+  const n = getNotes().find(x => x.id === id);
+  if (!n) return;
+  let lines = []; lines.push('═══════════ MIOGEST ═══════════');
+  if (n.contact && n.contact !== '—' || n.phone || n.email || n.intent) {
+    lines.push(''); lines.push('▸ CONTATTO');
+    if (n.contact && n.contact !== '—') lines.push('  Nome:      ' + n.contact);
+    if (n.phone)   lines.push('  Telefono:  ' + n.phone);
+    if (n.email)   lines.push('  Email:     ' + n.email);
+    if (n.intent)  lines.push('  Intento:   ' + n.intent);
+  }
+  if (n.property || n.price || n.sqm || n.rooms || n.floor || n.features || n.condition) {
+    lines.push(''); lines.push('▸ IMMOBILE');
+    if (n.property) lines.push('  Tipo:      ' + n.property);
+    if (n.price)   lines.push('  Prezzo:    ' + n.price);
+    if (n.sqm)     lines.push('  Superficie: ' + n.sqm);
+    if (n.rooms)   lines.push('  Vani:      ' + n.rooms);
+    if (n.floor)   lines.push('  Piano:     ' + n.floor);
+    if (n.features) lines.push('  Dotazioni: ' + n.features);
+    if (n.condition) lines.push('  Stato:     ' + n.condition);
+  }
+  if (n.action || n.datetime || n.priority) {
+    lines.push(''); lines.push('▸ ATTIVITÀ');
+    if (n.action)   lines.push('  Azione:    ' + n.action);
+    if (n.datetime) lines.push('  Data/Ora:  ' + n.datetime);
+    if (n.priority) lines.push('  Priorità:  ' + n.priority);
+  }
+  lines.push(''); lines.push('▸ NOTE'); lines.push(n.transcript || n.notes || '—');
+  lines.push(''); lines.push('────────────────────────────');
+  copyToClipboard(lines.join('\n'), 'Dati copiati per Miogest!');
+}
+
+// ======== DETAIL ========
+let detailId = null;
+let editingNoteId = null;
+function showDetail(id) {
+  const n = getNotes().find(x => x.id === id);
+  if (!n) return;
+  detailId = id;
+  document.getElementById('detContact').textContent = (n.contact && n.contact !== '—') ? n.contact : 'Nuovo contatto';
+  const pClass = 'priority-' + (n.priority || 'media');
+  document.getElementById('detMeta').innerHTML = `<span class="card-priority ${pClass}">${n.priority || 'media'}</span><span style="font-size:0.75rem;color:var(--fg4)">${n.dateLabel || formatDateLabel(new Date(n.date))}</span>`;
+  document.getElementById('detContactName').textContent = (n.contact && n.contact !== '—') ? n.contact : '—';
+  document.getElementById('detPhone').textContent = n.phone || '—';
+  document.getElementById('detEmail').textContent = n.email || '—';
+  document.getElementById('detIntent').textContent = n.intent || '—';
+  document.getElementById('detProperty').textContent = n.property || '—';
+  document.getElementById('detPrice').textContent = n.price || '—';
+  document.getElementById('detSqm').textContent = n.sqm || '—';
+  document.getElementById('detRooms').textContent = n.rooms || '—';
+  document.getElementById('detFloor').textContent = n.floor || '—';
+  document.getElementById('detFeatures').textContent = n.features || '—';
+  document.getElementById('detAction').textContent = n.action || '—';
+  document.getElementById('detDatetime').textContent = n.datetime || '—';
+  document.getElementById('detPriorityDetail').textContent = n.priority || 'media';
+  document.getElementById('detFullNote').textContent = n.transcript || n.notes || '—';
+  showScreen('screen-detail');
+}
+
+document.getElementById('btnBackToDashboard').addEventListener('click', function() { showScreen('screen-main'); });
+
+document.querySelectorAll('.detail-copy-icon').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const n = getNotes().find(x => x.id === detailId); if (!n) return;
+    const map = { contact:'contact', phone:'phone', email:'email', intent:'intent', property:'property', price:'price', sqm:'sqm', rooms:'rooms', floor:'floor', features:'features', action:'action', datetime:'datetime', priority:'priority' };
+    const val = n[map[this.dataset.field]] || '—';
+    copyToClipboard(val, 'Copiato: ' + this.dataset.field);
+  });
+});
+
+document.getElementById('btnCopyAllMiogest').addEventListener('click', function() { copyNoteForCRM(detailId); });
+document.getElementById('btnDeleteNote').addEventListener('click', function() {
+  if (!detailId || !confirm('Eliminare questa nota definitivamente?')) return;
+  let notes = getNotes(); notes = notes.filter(n => n.id !== detailId); saveNotes(notes);
+  showToast('Nota eliminata'); showScreen('screen-main'); renderDashboard();
+});
+
+function editNote() {
+  try {
+    console.log('[editNote] start');
+    const n = getNotes().find(x => x.id === detailId);
+    if (!n) { showToast('Nota non trovata!'); return; }
+    editingNoteId = detailId;
+
+    // Popola preview con dati esistenti
+    document.getElementById('prefContact').value = (n.contact && n.contact !== '—') ? n.contact : '';
+    document.getElementById('prefPhone').value = n.phone || '';
+    document.getElementById('prefEmail').value = n.email || '';
+    document.getElementById('prefIntent').value = n.intent || '';
+    document.getElementById('prefProperty').value = n.property || '';
+    document.getElementById('prefPrice').value = n.price || '';
+    document.getElementById('prefSqm').value = n.sqm || '';
+    document.getElementById('prefRooms').value = n.rooms || '';
+    document.getElementById('prefFloor').value = n.floor || '';
+    document.getElementById('prefFeatures').value = n.features || '';
+    document.getElementById('prefCondition').value = n.condition || '';
+    document.getElementById('prefAction').value = n.action || '';
+    document.getElementById('prefDatetime').value = n.datetime || '';
+    document.getElementById('prefPriority').value = n.priority || '';
+    document.getElementById('prefNotes').value = n.transcript || n.notes || '';
+
+    // Attiva toggle guida
+    const toggle = document.getElementById('guideToggle');
+    if (toggle) toggle.checked = true;
+    const label = document.getElementById('guideBarLabel');
+    if (label) { label.textContent = 'Guida vocale attiva'; label.classList.add('active'); }
+
+    // Vai in screen-record con guida
+    showScreen('screen-record');
+    showGuidePanel(true);
+
+    // Avvia guida in modalità edit
+    guideState = { active: true, mode: 'contact', step: 0, answers: {}, missing: {}, editMode: true };
+
+    // Pre-compila TUTTI i campi della nota (per non perderli al salvataggio)
+    const allNoteFields = ['contact','phone','email','intent','property','price','sqm','rooms','floor','features','condition','action','datetime','priority'];
+    for (const field of allNoteFields) {
+      const val = n[field];
+      if (val && val !== '—' && val !== '') {
+        guideState.answers[field] = val;
+      }
+    }
+
+    renderGuideFields();
+    document.getElementById('recTimer').textContent = '0:00';
+    document.getElementById('recTranscript').textContent = '';
+
+    // Trova aree con campi vuoti
+    const areaDefs = [
+      { mode:'contact',  name:'Contatto',  icon:'📞', fields:['contact','phone','email','intent'] },
+      { mode:'property', name:'Immobile',  icon:'🏠', fields:['property','price','sqm','rooms','floor','features','condition'] },
+      { mode:'activity', name:'Attività',  icon:'📅', fields:['action','datetime','priority'] }
+    ];
+
+    const availableAreas = areaDefs.filter(area => {
+      return area.fields.some(f => {
+        const val = n[f];
+        return !val || val === '—' || val === '';
+      });
+    });
+
+    console.log('[editNote] aree disponibili:', availableAreas.map(a => a.name));
+
+    if (availableAreas.length === 0) {
+      showToast('Tutti i campi sono già compilati');
+      endGuide();
+      return;
+    }
+
+    // Chiedi all'utente quale area vuole compilare
+    askWhichArea(availableAreas);
+
+  } catch(e) {
+    console.error('[editNote] ERRORE:', e);
+    showToast('Errore: ' + e.message);
+  }
+}
+
+function askWhichArea(availableAreas) {
+  if (!guideState || !guideState.active) return;
+
+  document.getElementById('guideQuestionText').textContent = 'Quale area vuoi compilare?';
+  document.getElementById('guideProgress').textContent = 'Scegli un\'area';
+
+  // Mostra le aree disponibili come opzioni tappabili
+  const container = document.getElementById('guideFields');
+  container.innerHTML = availableAreas.map(area => {
+    return '<div class="guide-field current" data-mode="' + area.mode + '" style="cursor:pointer;padding:14px;margin:4px 0;background:var(--bg3);border-radius:var(--radius-sm);font-size:0.95rem">' +
+      '<span class="guide-field-icon">' + area.icon + '</span>' +
+      '<span class="guide-field-name" style="font-weight:600">' + area.name + '</span>' +
+      '<span class="guide-field-value">Da compilare</span></div>';
+  }).join('');
+
+  // Click diretto su un'area
+  container.querySelectorAll('.guide-field').forEach(el => {
+    el.addEventListener('click', function() {
+      if (!guideState || !guideState.active) return;
+      if (guideRecognition) { try { guideRecognition.abort(); } catch(e) {} guideRecognition = null; }
+      startAreaGuide(this.dataset.mode);
+    });
+  });
+
+  updateGuideStatus('listening', 'Scegli un\'area...');
+
+  // Chiedi vocalmente
+  const areaNames = availableAreas.map(a => a.name).join(', ');
+  const msg = 'Quale area vuoi compilare? ' + areaNames;
+  speak(msg, function() {
+    if (!guideState || !guideState.active) return;
+    listenForAreaChoice(availableAreas, msg);
+  });
+}
+
+function listenForAreaChoice(availableAreas, msg) {
+  if (!guideState || !guideState.active) return;
+
+  if (guideRecognition) {
+    try { guideRecognition.abort(); } catch(e) {}
+    guideRecognition = null;
+  }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { updateGuideStatus('listening', 'Tocca un\'area'); return; }
+
+  const r = new SR();
+  guideRecognition = r;
+  r.lang = 'it-IT'; r.continuous = false; r.interimResults = false;
+
+  r.onresult = function(event) {
+    const text = event.results[0][0].transcript.trim().toLowerCase();
+    console.log('[editNote] scelta area:', text);
+
+    let matchedMode = null;
+    for (const area of availableAreas) {
+      if (text.includes(area.name.toLowerCase())) {
+        matchedMode = area.mode;
+        break;
+      }
+    }
+
+    if (matchedMode) {
+      guideRecognition = null;
+      startAreaGuide(matchedMode);
+    } else {
+      updateGuideStatus('listening', 'Non ho capito. Riprova.');
+      speak('Non ho capito. ' + msg, function() {
+        if (guideState && guideState.active) listenForAreaChoice(availableAreas, msg);
+      });
+    }
+  };
+
+  r.onerror = function() {
+    updateGuideStatus('listening', 'Tocca un\'area sullo schermo');
+  };
+
+  try { r.start(); } catch(e) {}
+}
+
+function startAreaGuide(mode) {
+  if (!guideState || !guideState.active) return;
+  console.log('[editNote] avvio area:', mode);
+
+  guideState.editMode = true;
+  guideState.mode = mode;
+  guideState.step = 0;
+
+  // Trova la prima domanda vuota in questa modalità
+  const qs = guideQuestions[mode];
+  const firstEmpty = qs.findIndex(q => !guideState.answers[q.field]);
+
+  if (firstEmpty < 0) {
+    showToast('Tutti i campi di ' + mode + ' sono già compilati');
+    endGuide();
+    return;
+  }
+
+  renderGuideFields();
+  askQuestion(firstEmpty);
+}
+
+document.getElementById('btnEditNote').addEventListener('click', editNote);
+
+// ======== HELPERS ========
+function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+function formatDateLabel(date) {
+  const diff = (Date.now() - date) / 1000;
+  if (diff < 60) return 'Pochi secondi fa';
+  if (diff < 3600) return Math.floor(diff/60) + ' min fa';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h fa';
+  if (diff < 172800) return 'Ieri';
+  return date.toLocaleDateString('it-IT', { day:'numeric', month:'short' });
+}
+function copyToClipboard(text, msg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(() => showToast(msg || 'Copiato!')); }
+  else { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast(msg || 'Copiato!'); }
+}
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._timeout); t._timeout = setTimeout(() => t.classList.remove('show'), 2000); }
+
+// ======== SETTINGS ========
+document.getElementById('btnSettings').addEventListener('click', function() {
+  const s = new Blob([JSON.stringify(getNotes())]).size;
+  document.getElementById('storageSize').textContent = (s / 1024).toFixed(1) + ' KB';
+  document.getElementById('settingsOverlay').classList.add('show');
+});
+document.getElementById('btnCloseSettings').addEventListener('click', function() { document.getElementById('settingsOverlay').classList.remove('show'); });
+document.getElementById('btnClearAll').addEventListener('click', function() { if (!confirm('Cancellare TUTTE le note? Operazione irreversibile.')) return; if (!confirm('Sei sicuro?')) return; saveNotes([]); document.getElementById('settingsOverlay').classList.remove('show'); renderDashboard(); showToast('Tutte le note cancellate'); });
+
+// ======== KEYBOARD ========
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { const a = document.querySelector('.screen.active'); if (a && a.id !== 'screen-pin' && a.id !== 'screen-main') showScreen('screen-main'); }
+});
+
+// ======== INIT ========
+setupPin(); setupModeChips(); setMode('free');
+if (!getSpeechRec()) showToast('Usa Chrome desktop o Android per il riconoscimento vocale.');
+
+})();
+</script>
+</body>
+</html>
