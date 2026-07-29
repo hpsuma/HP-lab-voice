@@ -151,11 +151,7 @@ body {
 .record-fab:active { transform: translateX(-50%) scale(0.88); }
 .record-fab:hover { transform: translateX(-50%) scale(1.05); box-shadow: 0 6px 32px rgba(59,235,116,0.18); }
 .record-fab svg { width: 26px; height: 26px; }
-.record-fab svg .hex-stroke { stroke: var(--green); }
-.record-fab svg .mic-stroke { stroke: #fff; }
 .record-fab.recording { background: var(--red); border-color: transparent; box-shadow: 0 4px 24px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.1); animation: pulse-record 1.5s var(--ease) infinite; }
-.record-fab.recording svg .hex-stroke,
-.record-fab.recording svg .mic-stroke { stroke: #fff; }
 @keyframes pulse-record { 0%,100% { box-shadow: 0 4px 24px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.1); } 50% { box-shadow: 0 4px 48px rgba(239,68,68,0.45), inset 0 1px 0 rgba(255,255,255,0.1); } }
 
 /* ===== RECORD SCREEN ===== */
@@ -400,7 +396,7 @@ body {
       <div class="empty-state"><div class="icon">🎤</div><p>Ancora nessuna nota.<br>Tocca il pulsante verde<br>per registrare la prima.</p></div>
     </div>
     <button class="record-fab" id="btnRecord" aria-label="Nuova nota vocale">
-      <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon class="hex-stroke" points="4.2,7.25 19.8,7.25 21,12 19.8,16.75 4.2,16.75 3,12" stroke-width="1.2" opacity="0.7"/><rect class="mic-stroke" x="9.75" y="8.5" width="4.5" height="4" rx="2" stroke-width="2"/><path class="mic-stroke" d="M7.5 12a4.5 4.5 0 0 0 9 0" stroke-width="2"/><line class="mic-stroke" x1="12" y1="15" x2="12" y2="16.5" stroke-width="2"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 12v1a7 7 0 0 0 14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
     </button>
   </div>
 
