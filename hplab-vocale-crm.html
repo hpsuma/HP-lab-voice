@@ -335,7 +335,7 @@ body {
         </defs>
         <g transform="translate(680, 460) scale(1.15)">
           <g transform="translate(15, 5)">
-            <path d="M 52,24 L 15,46 L 15,114 L 70,146 L 125,114 L 125,46 Z" class="green-fill-path" />
+            <path d="M 52,24 L 15,46 L 15,114 L 70,146 L 125,114 L 125,46 L 88,24 L 88,36 L 113,51 L 113,109 L 70,134 L 27,109 L 27,51 L 52,36 Z" fill-rule="evenodd" class="green-fill-path" />
             <rect x="62" y="14" width="16" height="42" rx="3" class="rect-power-fill" />
           </g>
           <text x="320" y="98" class="text-main-hp">HP Lab</text>
@@ -601,6 +601,7 @@ body {
         Seleziona la modalità prima di registrare per un'estrazione mirata.
       </div>
       <button class="overlay-close" id="btnClearAll" style="margin-top:12px;border-color:rgba(239,68,68,0.15);color:#ef4444">Cancella tutte le note</button>
+      <button class="overlay-close" id="btnInstallApp" style="margin-top:8px;border-color:rgba(34,197,94,0.2);color:var(--green);display:none">📲 Installa app</button>
       <button class="overlay-close" id="btnCloseSettings" style="margin-top:8px">Chiudi</button>
     </div>
   </div>
@@ -1840,6 +1841,11 @@ document.getElementById('btnSettings').addEventListener('click', function() {
 });
 document.getElementById('btnCloseSettings').addEventListener('click', function() { document.getElementById('settingsOverlay').classList.remove('show'); });
 document.getElementById('btnClearAll').addEventListener('click', function() { if (!confirm('Cancellare TUTTE le note? Operazione irreversibile.')) return; if (!confirm('Sei sicuro?')) return; saveNotes([]); document.getElementById('settingsOverlay').classList.remove('show'); renderDashboard(); showToast('Tutte le note cancellate'); });
+document.getElementById('btnInstallApp').addEventListener('click', function() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function() { deferredPrompt = null; document.getElementById('btnInstallApp').style.display = 'none'; });
+});
 
 // ======== KEYBOARD ========
 document.addEventListener('keydown', function(e) {
@@ -1857,6 +1863,8 @@ var deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
   deferredPrompt = e;
+  var btn = document.getElementById('btnInstallApp');
+  if (btn) btn.style.display = '';
 });
 
 // ======== INIT ========
