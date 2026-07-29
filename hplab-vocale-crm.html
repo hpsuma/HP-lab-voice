@@ -197,8 +197,11 @@ body {
 
 .guide-actions { display: flex; gap: 10px; margin-top: 12px; flex-shrink: 0; }
 .guide-actions button { flex: 1; padding: 12px; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
-.guide-btn-skip { background: transparent; border: 1px solid rgba(239,68,68,0.15); color: #ef4444; }
-.guide-btn-skip:active { background: rgba(239,68,68,0.06); transform: scale(0.97); }
+.guide-btn-skip,
+.guide-btn-retry { background: transparent; border: 1px solid rgba(239,68,68,0.15); color: #ef4444; }
+.guide-btn-skip:active,
+.guide-btn-retry:active { background: rgba(239,68,68,0.06); transform: scale(0.97); }
+.guide-btn-retry { border-color: rgba(251,191,36,0.2); color: #fbbf24; }
 .guide-btn-end { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--fg3); }
 .guide-btn-end:active { background: var(--bg3); transform: scale(0.97); }
 
@@ -398,6 +401,7 @@ body {
       <div class="guide-fields" id="guideFields"></div>
       <div class="guide-actions">
         <button class="guide-btn-skip" id="guideBtnSkip">✕ Non ricordo</button>
+        <button class="guide-btn-retry" id="guideBtnRetry">🔁 Riascolta</button>
         <button class="guide-btn-end" id="guideBtnEnd">Termina guida</button>
       </div>
     </div>
@@ -825,6 +829,7 @@ function askQuestion(index) {
   if (index >= qs.length) { endGuide(); return; }
 
   guideState.step = index;
+  guideState._listenRetry = 0; // reset contatore errori microfono
   const q = qs[index];
 
   document.getElementById('guideQuestionText').textContent = q.q;
@@ -850,20 +855,29 @@ function listenForAnswer() {
   guideRecognition = r;
   r.lang = 'it-IT'; r.continuous = false; r.interimResults = false;
 
+  // Contatore retry per evitare loop infiniti su mobile
+  if (guideState._listenRetry === undefined) guideState._listenRetry = 0;
+
   r.onresult = function(event) {
+    guideState._listenRetry = 0; // reset contatore
     const text = event.results[0][0].transcript;
     processAnswer(text.trim());
   };
   r.onerror = function(event) {
-    // Errori permanenti → interrompi la guida
     if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
       showToast('Microfono non accessibile. Controlla i permessi.');
       endGuide();
       return;
     }
-    // Silenzio o errore temporaneo → riprova
-    updateGuideStatus('listening', 'Non ho sentito. Riprova.');
-    setTimeout(function() { if (guideState && guideState.active) listenForAnswer(); }, 1500);
+    guideState._listenRetry++;
+    if (guideState._listenRetry >= 3) {
+      // Troppi tentativi: ferma auto-retry, mostra messaggio
+      guideState._listenRetry = 0;
+      updateGuideStatus('listening', 'Tocca 🔁 Riascolta per riprovare');
+      return;
+    }
+    updateGuideStatus('listening', 'Non ho sentito. Riprova...');
+    setTimeout(function() { if (guideState && guideState.active) listenForAnswer(); }, 2000);
   };
   try { r.start(); } catch(e) { processAnswer(''); }
 }
@@ -1069,6 +1083,25 @@ document.getElementById('guideBtnSkip').addEventListener('click', function() {
   updateGuideStatus('thinking', 'Saltato ✓');
   renderGuideFields();
   setTimeout(function() { if (guideState && guideState.active) nextQuestion(); }, 400);
+});
+
+document.getElementById('guideBtnRetry').addEventListener('click', function() {
+  if (!guideState || !guideState.active) return;
+  // Ferma riconoscimento in corso
+  if (guideRecognition) { try { guideRecognition.abort(); } catch(e) {} guideRecognition = null; }
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  // Ripeti la domanda corrente
+  const qs = guideQuestions[guideState.mode];
+  const q = qs[guideState.step];
+  if (!q) return;
+  updateGuideStatus('speaking', 'Riascolto...');
+  setTimeout(function() {
+    if (!guideState || !guideState.active) return;
+    speak(q.q, function() {
+      if (!guideState || !guideState.active) return;
+      listenForAnswer();
+    });
+  }, 300);
 });
 
 document.getElementById('guideBtnEnd').addEventListener('click', function() {
