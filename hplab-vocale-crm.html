@@ -279,6 +279,8 @@ body {
 .detail-row-value.small { font-size: 0.72rem; color: var(--fg3); }
 .detail-copy-icon { background: none; border: 1px solid rgba(34,197,94,0.1); color: var(--green); font-size: 0.55rem; padding: 3px 10px; border-radius: 6px; cursor: pointer; flex-shrink: 0; transition: all 0.2s var(--ease); }
 .detail-copy-icon:active { background: var(--green-subtle); transform: scale(0.95); }
+.detail-edit-input { background: var(--bg3); border: 1px solid var(--green); border-radius: 6px; color: var(--fg); font-size: 0.82rem; padding: 4px 8px; width: 100%; outline: none; min-width: 0; }
+.detail-edit-input:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(34,197,94,0.15); }
 .detail-big-copy { margin-top: 16px; width: 100%; padding: 14px; border-radius: var(--radius-sm); background: var(--green); border: none; color: var(--bg); font-size: 0.85rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 12px var(--green-glow); transition: all 0.2s var(--ease); }
 .detail-big-copy:active { transform: scale(0.97); box-shadow: none; }
 .detail-edit-btn { margin-top: 12px; width: 100%; padding: 14px; border-radius: var(--radius-sm); background: var(--green); border: none; color: var(--bg); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s var(--ease); }
@@ -549,27 +551,27 @@ body {
 
       <div class="detail-group">
         <div class="detail-group-title">Contatto</div>
-        <div class="detail-row"><span class="detail-row-label">Nome</span><span class="detail-row-value" id="detContactName"></span><button class="detail-copy-icon" data-field="contact">copia</button></div>
-        <div class="detail-row"><span class="detail-row-label">Tel</span><span class="detail-row-value" id="detPhone"></span><button class="detail-copy-icon" data-field="phone">copia</button></div>
-        <div class="detail-row"><span class="detail-row-label">Email</span><span class="detail-row-value" id="detEmail"></span><button class="detail-copy-icon" data-field="email">copia</button></div>
-        <div class="detail-row"><span class="detail-row-label">Intento</span><span class="detail-row-value" id="detIntent"></span><button class="detail-copy-icon" data-field="intent">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Nome</span><span class="detail-row-value" id="detContactName"></span><button class="detail-copy-icon" data-field="contact">modifica</button></div>
+        <div class="detail-row"><span class="detail-row-label">Tel</span><span class="detail-row-value" id="detPhone"></span><button class="detail-copy-icon" data-field="phone">modifica</button></div>
+        <div class="detail-row"><span class="detail-row-label">Email</span><span class="detail-row-value" id="detEmail"></span><button class="detail-copy-icon" data-field="email">modifica</button></div>
+        <div class="detail-row"><span class="detail-row-label">Intento</span><span class="detail-row-value" id="detIntent"></span><button class="detail-copy-icon" data-field="intent">modifica</button></div>
       </div>
 
       <div class="detail-group">
         <div class="detail-group-title">Immobile</div>
-        <div class="detail-row"><span class="detail-row-label">Tipo</span><span class="detail-row-value" id="detProperty"></span><button class="detail-copy-icon" data-field="property">copia</button></div>
-        <div class="detail-row"><span class="detail-row-label">Prezzo</span><span class="detail-row-value" id="detPrice"></span><button class="detail-copy-icon" data-field="price">copia</button></div>
-        <div class="detail-row"><span class="detail-row-label">Mq</span><span class="detail-row-value small" id="detSqm"></span><button class="detail-copy-icon" data-field="sqm">copia</button></div>
-        <div class="detail-row"><span class="detail-row-label">Vani</span><span class="detail-row-value small" id="detRooms"></span><button class="detail-copy-icon" data-field="rooms">copia</button></div>
-        <div class="detail-row"><span class="detail-row-label">Piano</span><span class="detail-row-value small" id="detFloor"></span><button class="detail-copy-icon" data-field="floor">copia</button></div>
-        <div class="detail-row"><span class="detail-row-label">Caratt.</span><span class="detail-row-value small" id="detFeatures"></span><button class="detail-copy-icon" data-field="features">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Tipo</span><span class="detail-row-value" id="detProperty"></span><button class="detail-copy-icon" data-field="property">modifica</button></div>
+        <div class="detail-row"><span class="detail-row-label">Prezzo</span><span class="detail-row-value" id="detPrice"></span><button class="detail-copy-icon" data-field="price">modifica</button></div>
+        <div class="detail-row"><span class="detail-row-label">Mq</span><span class="detail-row-value small" id="detSqm"></span><button class="detail-copy-icon" data-field="sqm">modifica</button></div>
+        <div class="detail-row"><span class="detail-row-label">Vani</span><span class="detail-row-value small" id="detRooms"></span><button class="detail-copy-icon" data-field="rooms">modifica</button></div>
+        <div class="detail-row"><span class="detail-row-label">Piano</span><span class="detail-row-value small" id="detFloor"></span><button class="detail-copy-icon" data-field="floor">modifica</button></div>
+        <div class="detail-row"><span class="detail-row-label">Caratt.</span><span class="detail-row-value small" id="detFeatures"></span><button class="detail-copy-icon" data-field="features">modifica</button></div>
       </div>
 
       <div class="detail-group">
         <div class="detail-group-title">Attività</div>
-        <div class="detail-row"><span class="detail-row-label">Azione</span><span class="detail-row-value" id="detAction"></span><button class="detail-copy-icon" data-field="action">copia</button></div>
-        <div class="detail-row"><span class="detail-row-label">Data</span><span class="detail-row-value" id="detDatetime"></span><button class="detail-copy-icon" data-field="datetime">copia</button></div>
-        <div class="detail-row"><span class="detail-row-label">Priorità</span><span class="detail-row-value" id="detPriorityDetail"></span><button class="detail-copy-icon" data-field="priority">copia</button></div>
+        <div class="detail-row"><span class="detail-row-label">Azione</span><span class="detail-row-value" id="detAction"></span><button class="detail-copy-icon" data-field="action">modifica</button></div>
+        <div class="detail-row"><span class="detail-row-label">Data</span><span class="detail-row-value" id="detDatetime"></span><button class="detail-copy-icon" data-field="datetime">modifica</button></div>
+        <div class="detail-row"><span class="detail-row-label">Priorità</span><span class="detail-row-value" id="detPriorityDetail"></span><button class="detail-copy-icon" data-field="priority">modifica</button></div>
       </div>
 
       <div class="detail-group">
@@ -1592,6 +1594,9 @@ function copyNoteForCRM(id) {
 let detailId = null;
 let editingNoteId = null;
 function showDetail(id) {
+  // Reset any pending inline edits
+  document.querySelectorAll('.detail-copy-icon').forEach(function(b) { b.textContent = 'modifica'; b._editing = false; });
+  document.querySelectorAll('.detail-edit-input').forEach(function(inp) { inp.closest('.detail-row-value').textContent = '—'; });
   const n = getNotes().find(x => x.id === id);
   if (!n) return;
   detailId = id;
@@ -1618,11 +1623,50 @@ function showDetail(id) {
 document.getElementById('btnBackToDashboard').addEventListener('click', function() { showScreen('screen-main'); });
 
 document.querySelectorAll('.detail-copy-icon').forEach(btn => {
+  btn._editing = false;
   btn.addEventListener('click', function() {
     const n = getNotes().find(x => x.id === detailId); if (!n) return;
     const map = { contact:'contact', phone:'phone', email:'email', intent:'intent', property:'property', price:'price', sqm:'sqm', rooms:'rooms', floor:'floor', features:'features', action:'action', datetime:'datetime', priority:'priority' };
-    const val = n[map[this.dataset.field]] || '—';
-    copyToClipboard(val, 'Copiato: ' + this.dataset.field);
+    const key = map[this.dataset.field]; if (!key) return;
+
+    if (!this._editing) {
+      // Enter edit mode
+      const row = this.closest('.detail-row');
+      const valueEl = row.querySelector('.detail-row-value');
+      const currentVal = n[key] || '';
+      valueEl.innerHTML = '<input type="text" class="detail-edit-input" value="' + escapeHtml(currentVal) + '">';
+      this.textContent = 'salva';
+      this._editing = true;
+      const input = valueEl.querySelector('input');
+      input.focus();
+      input.select();
+      const doSave = function() {
+        if (!btn._editing) return;
+        const v = input.value.trim();
+        let notes = getNotes();
+        const note = notes.find(x => x.id === detailId);
+        if (note) { note[key] = v || ''; saveNotes(notes); }
+        valueEl.textContent = v || '—';
+        btn.textContent = 'modifica';
+        btn._editing = false;
+        showToast('Campo aggiornato');
+      };
+      input.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); doSave(); } });
+      input.addEventListener('blur', function() { setTimeout(doSave, 150); });
+    } else {
+      // Save
+      const row = this.closest('.detail-row');
+      const input = row.querySelector('.detail-edit-input');
+      if (!input) return;
+      const v = input.value.trim();
+      let notes = getNotes();
+      const note = notes.find(x => x.id === detailId);
+      if (note) { note[key] = v || ''; saveNotes(notes); }
+      row.querySelector('.detail-row-value').textContent = v || '—';
+      this.textContent = 'modifica';
+      this._editing = false;
+      showToast('Campo aggiornato');
+    }
   });
 });
 
