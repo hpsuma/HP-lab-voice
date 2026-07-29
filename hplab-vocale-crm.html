@@ -1515,19 +1515,20 @@ function renderDashboard() {
   list.querySelectorAll('.note-card').forEach(card => {
     let _suppressClick = false;
     card.addEventListener('click', function(e) {
-      if (_suppressClick) { _suppressClick = false; return; }
       if (e.target.closest('.card-copy-btn')) return;
       if (this.classList.contains('show-delete')) {
+        if (_suppressClick) { _suppressClick = false; return; }
         this.classList.remove('show-delete');
         return;
       }
+      if (_suppressClick) { _suppressClick = false; return; }
       showDetail(this.dataset.id);
     });
     let longPressTimer = null;
     card.addEventListener('touchstart', function() {
       longPressTimer = setTimeout(function() {
         longPressTimer = null;
-        card.classList.toggle('show-delete');
+        card.classList.add('show-delete');
         _suppressClick = true;
       }, 500);
     });
@@ -1535,12 +1536,15 @@ function renderDashboard() {
     card.addEventListener('touchend', function() { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } });
     card.addEventListener('contextmenu', function(e) {
       e.preventDefault();
-      card.classList.toggle('show-delete');
+      card.classList.add('show-delete');
+      _suppressClick = true;
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
     });
     const delBtn = card.querySelector('.card-delete-btn');
     if (delBtn) {
       delBtn.addEventListener('click', function(e) {
         e.stopPropagation();
+        card.classList.remove('show-delete');
         let notes = getNotes(); notes = notes.filter(n => n.id !== this.dataset.id); saveNotes(notes);
         showToast('Nota eliminata');
         renderDashboard();
